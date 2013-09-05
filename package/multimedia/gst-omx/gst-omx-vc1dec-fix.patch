@@ -1,0 +1,16 @@
+--- a/config/rpi/gstomx.conf	2013-05-20 12:28:04.000000000 +0200
++++ b/config/rpi/gstomx.conf	2013-09-05 09:15:01.000000000 +0200
+@@ -64,12 +64,11 @@
+ [omxvc1dec]
+ type-name=GstOMXWMVDec
+ core-name=/opt/vc/lib/libopenmaxil.so
+-component-name=OMX.broadcom.video_encode
++component-name=OMX.broadcom.video_decode
+ rank=256
+ in-port-index=130
+ out-port-index=131
+ hacks=no-component-role
+-sink-template-caps=video/x-wmv,wmvversion=(int)3,format=(string){WMV3,WVC1},width=(int)[1,MAX],height=(int)[1,MAX]
+ 
+ [omxh264enc]
+ type-name=GstOMXH264Enc
