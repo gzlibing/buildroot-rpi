@@ -4,6 +4,8 @@
 #
 #############################################################
 
+#QT5WEBKIT_VERSION = 63a45cfef9ec3ab16d9ea1529e296da1148f9504
+#QT5WEBKIT_SITE = http://github.com/WebKit/webkit/tarball/master
 QT5WEBKIT_VERSION = $(QT5_VERSION)
 QT5WEBKIT_SITE = $(QT5_SITE)
 QT5WEBKIT_SOURCE = qtwebkit-opensource-src-$(QT5WEBKIT_VERSION).tar.xz
