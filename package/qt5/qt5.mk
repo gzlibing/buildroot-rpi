@@ -1,4 +1,4 @@
-QT5_VERSION = 5.1.0
+QT5_VERSION = 5.1.1
 QT5_SITE = http://download.qt-project.org/official_releases/qt/5.1/$(QT5_VERSION)/submodules/
 include package/qt5/*/*.mk
 
