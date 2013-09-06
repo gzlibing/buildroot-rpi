@@ -117,7 +117,7 @@
 +  demux->fileIsDrmProtected = DX_FALSE;
 +
 +  /*Loading the Drm config file*/
-+  demux->lastResult = DxLoadConfigFile("/usr/local/DxDrm/DxDrmConfig.txt");
++  demux->lastResult = DxLoadConfigFile("/etc/dxdrm/.config");
 +  if(demux->lastResult != DX_SUCCESS)
 +  {
 +        GST_WARNING_OBJECT (demux, "DX: ERROR - Discretix configuration file not found");
