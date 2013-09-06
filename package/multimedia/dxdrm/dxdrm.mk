@@ -16,7 +16,7 @@ define DXDRM_INSTALL_TARGET_CMDS
 		mkdir -p $(TARGET_DIR)/usr/lib; \
 		$(INSTALL) -m 755 $(@D)/dxdrm.bin $(TARGET_DIR)/usr/lib/libDxDrm.so; \
 	fi; \
-	if [ -f $(@D)/DxDrmConfig.txt ]; then \
+	if [ -f $(@D)/dxdrm.config ]; then \
 		mkdir -p $(TARGET_DIR)/etc/dxdrm/credentials; \
 		$(INSTALL) -m 755 $(@D)/dxdrm.config $(TARGET_DIR)/etc/dxdrm; \
 		$(INSTALL) -m 755 $(@D)/credentials/* $(TARGET_DIR)/etc/dxdrm; \
