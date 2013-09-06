@@ -103,4 +103,4 @@ or fork this repository and send us your *Pull Requests*.
 Proprietary Packages
 --------------------
 
-For the proprietary packages, e.g. Gstreamer DASH plugin, please contact us at sales@metrological.com
+For the proprietary packages, e.g. Gstreamer DASH plugin and PlayReady support, please contact us at sales@metrological.com
