@@ -18,8 +18,8 @@ define DXDRM_INSTALL_TARGET_CMDS
 	fi; \
 	if [ -f $(@D)/DxDrmConfig.txt ]; then \
 		mkdir -p $(TARGET_DIR)/etc/dxdrm/credentials; \
-		$(INSTALL) -m 755 $(@D)/DxDrmConfig.txt $(TARGET_DIR)/etc/dxdrm/.config; \
-		$(INSTALL) -m 755 $(@D)/credentials/* $(TARGET_DIR)/etc/dxdrm/credentials/; \
+		$(INSTALL) -m 755 $(@D)/dxdrm.config $(TARGET_DIR)/etc/dxdrm; \
+		$(INSTALL) -m 755 $(@D)/credentials/* $(TARGET_DIR)/etc/dxdrm; \
 	fi; \
 	if [ -d $(@D)/include ]; then \
 		mkdir -p $(STAGING_DIR)/usr/include/dxdrm; \
