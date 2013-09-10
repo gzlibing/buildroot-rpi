@@ -46,11 +46,12 @@
    gboolean has_multiple_payloads;
    GstAsfDemuxParsePacketError ret = GST_ASF_DEMUX_PARSE_PACKET_ERROR_NONE;
    guint8 ec_flags, flags1;
-@@ -483,6 +504,31 @@
+@@ -483,6 +506,33 @@
    size = GST_BUFFER_SIZE (buf);
    GST_LOG_OBJECT (demux, "Buffer size: %u", size);
  
 + /* Discretix integration Start */
++#if __DXDRM_
 +  /*"The GStreamer modifications made by Discretix are for reference only and should not be used as it is. 
 +The GStreamer integration with the DRM API must take into consideration open source license issues." */
 +
@@ -73,6 +74,7 @@
 +          return FALSE;
 +        }
 +    }
++#endif __DXDRM__
 +  /* Discretix integration End */
 +
    /* need at least two payload flag bytes, send time, and duration */
