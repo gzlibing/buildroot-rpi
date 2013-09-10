@@ -1,0 +1,15 @@
+--- a/Source/WebKit/qt/WebCoreSupport/TextureMapperLayerClientQt.cpp
++++ b/Source/WebKit/qt/WebCoreSupport/TextureMapperLayerClientQt.cpp
+@@ -103,7 +103,11 @@
+         return;
+ 
+     m_textureMapper->setGraphicsContext(context);
+-    m_textureMapper->setImageInterpolationQuality(context->imageInterpolationQuality());
++//    m_textureMapper->setImageInterpolationQuality(context->imageInterpolationQuality());
++    if (context->platformContext()->renderHints() & QPainter::SmoothPixmapTransform)
++        m_textureMapper->setImageInterpolationQuality(WebCore::InterpolationMedium);
++    else
++        m_textureMapper->setImageInterpolationQuality(WebCore::InterpolationNone);
+     m_textureMapper->setTextDrawingMode(context->textDrawingMode());
+     QPainter* painter = context->platformContext();
+     const QTransform transform = painter->worldTransform();
