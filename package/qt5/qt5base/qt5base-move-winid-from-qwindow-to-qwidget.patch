@@ -1,0 +1,27 @@
+--- a/src/widgets/kernel/qwidget_qpa.cpp
++++ b/src/widgets/kernel/qwidget_qpa.cpp
+@@ -153,7 +153,9 @@
+     }
+ 
+     setWindowModified_helper();
+-    setWinId(win->winId());
++    WId id = win->winId();
++//    Q_ASSERT(id != WId(0));
++    setWinId(id);
+ 
+     // Check children and create windows for them if necessary
+     q_createNativeChildrenAndSetParent(q);
+--- a/src/gui/kernel/qwindow.cpp
++++ b/src/gui/kernel/qwindow.cpp
+@@ -501,10 +501,7 @@
+     if(!d->platformWindow)
+         const_cast<QWindow *>(this)->create();
+ 
+-    WId id = d->platformWindow->winId();
+-    // See the QPlatformWindow::winId() documentation
+-//    Q_ASSERT(id != WId(0));
+-    return id;
++    return d->platformWindow->winId();
+ }
+ 
+ /*!
