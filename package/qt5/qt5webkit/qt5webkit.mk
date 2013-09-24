@@ -29,6 +29,14 @@ else
 	DEBUG_CONFIG="CONFIG-=debug"
 endif
 
+ifeq ($(BR2_PACKAGE_MINIBROWSER),y)
+	QT5WEBKIT_POST_BUILD_HOOKS += QT5WEBKIT_BUILD_MINIBROWSER
+endif
+
+ifeq ($(BR2_PACKAGE_DUMPRENDERTREE), y)
+	QT5WEBKIT_POST_BUILD_HOOKS += QT5WEBKIT_BUILD_MINIBROWSER
+endif
+
 define QT5WEBKIT_CONFIGURE_CMDS
 	(cd $(@D); \
 		$(TARGET_MAKE_ENV) \
@@ -43,6 +51,23 @@ endef
 
 define QT5WEBKIT_BUILD_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D)
+endef
+
+define QT5WEBKIT_BUILD_MINIBROWSER
+	(cd $(@D)/Tools/MiniBrowser/qt; \
+	$(TARGET_MAKE_ENV) \
+	$(HOST_DIR)/usr/bin/qmake \
+	)
+
+	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D)/Tools/MiniBrowser/qt
+endef
+
+define QT5WEBKIT_BUILD_DUMPRENDERTREE
+	(cd $(@D)/Tools/DumpRenderTree/qt; \
+		$(TARGET_MAKE_ENV) \
+		$(HOST_DIR)/usr/bin/qmake ./DumpRenderTree.pro \
+	)
+	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D)/Tools/DumpRenderTree/qt
 endef
 
 define QT5WEBKIT_INSTALL_STAGING_CMDS
