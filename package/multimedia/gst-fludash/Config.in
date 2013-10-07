@@ -1,10 +1,7 @@
 config BR2_PACKAGE_GST_FLUDASH
 	bool "gst-fludash"
-	depends on BR2_PACKAGE_GSTREAMER
-	depends on BR2_PACKAGE_RPI_USERLAND
-	select BR2_PACKAGE_GST_PLUGINS_BASE
-	select BR2_PACKAGE_LIBCURL
+	depends on BR2_PACKAGE_GST_FLUCODECPACK
 	help
-	  GStreamer DASH plug-in.
+	  GStreamer RPI DASH plug-in.
 
 	  http://www.metrological.com
