@@ -2,7 +2,7 @@ This patch is based on commit db13d9b8a13b82df71f199f20f03a24a4c5b8175. It has b
 
 --- a/src/gui/opengl/qopengltextureglyphcache.cpp
 +++ b/src/gui/opengl/qopengltextureglyphcache.cpp
-@@ -302,11 +302,6 @@ void QOpenGLTextureGlyphCache::fillTexture(const Coord &c, glyph_t glyph, QFixed
+@@ -305,11 +305,6 @@ void QOpenGLTextureGlyphCache::fillTexture(const Coord &c, glyph_t glyph, QFixed
      const int maskWidth = mask.width();
      const int maskHeight = mask.height();
  
@@ -14,7 +14,7 @@ This patch is based on commit db13d9b8a13b82df71f199f20f03a24a4c5b8175. It has b
      if (mask.format() == QImage::Format_Mono) {
          mask = mask.convertToFormat(QImage::Format_Indexed8);
          for (int y = 0; y < maskHeight; ++y) {
-@@ -318,9 +313,6 @@ void QOpenGLTextureGlyphCache::fillTexture(const Coord &c, glyph_t glyph, QFixed
+@@ -321,9 +316,6 @@ void QOpenGLTextureGlyphCache::fillTexture(const Coord &c, glyph_t glyph, QFixed
          if (mask.format() == QImage::Format_RGB32
              // We need to make the alpha component equal to the average of the RGB values.
              // This is needed when drawing sub-pixel antialiased text on translucent targets.
@@ -24,7 +24,7 @@ This patch is based on commit db13d9b8a13b82df71f199f20f03a24a4c5b8175. It has b
              ) {
              for (int y = 0; y < maskHeight; ++y) {
                  quint32 *src = (quint32 *) mask.scanLine(y);
-@@ -335,12 +327,10 @@ void QOpenGLTextureGlyphCache::fillTexture(const Coord &c, glyph_t glyph, QFixed
+@@ -338,12 +330,10 @@ void QOpenGLTextureGlyphCache::fillTexture(const Coord &c, glyph_t glyph, QFixed
                          avg = src[x] >> 24;
  
  #if defined(QT_OPENGL_ES_2)
@@ -40,7 +40,7 @@ This patch is based on commit db13d9b8a13b82df71f199f20f03a24a4c5b8175. It has b
                  }
              }
          }
-@@ -349,7 +339,7 @@ void QOpenGLTextureGlyphCache::fillTexture(const Coord &c, glyph_t glyph, QFixed
+@@ -352,7 +342,7 @@ void QOpenGLTextureGlyphCache::fillTexture(const Coord &c, glyph_t glyph, QFixed
      glBindTexture(GL_TEXTURE_2D, m_textureResource->m_texture);
      if (mask.depth() == 32) {
  #if defined(QT_OPENGL_ES_2)
