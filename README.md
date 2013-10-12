@@ -36,12 +36,6 @@ followed by
 	make menuconfig      # if you want to add packages
 	make                 # build (NOTICE: Don't use the **-j** switch, it's set to auto-detect)
 
-on some networks svn:// port might be blocked in that case building eglibc will fail, to solve that
-
-    edit output/host/usr/lib/ct-ng.1.18.0/scripts/build/libc/eglibc.sh
-    change the line
-    if [ "${CT_EGLIBC_HTTP}" = "y" ]; then   as if [ "${CT_EGLIBC_HTTP}" != "y" ]; then
-
 Deploying
 ---------
 
