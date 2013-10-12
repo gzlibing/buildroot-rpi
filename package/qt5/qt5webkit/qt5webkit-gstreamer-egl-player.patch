@@ -73,12 +73,12 @@
 +
 +static void mediaPlayerPrivateVideoPrerollCallback(GstElement* fakesink, GstBuffer* buffer, GstPad* pad, MediaPlayerPrivateGStreamer* player)
 +{
-+    player->queueObject(GST_MINI_OBJECT_CAST (gst_buffer_ref (buffer)), FALSE);
++    player->updateEGLMemory(buffer);
 +}
 +
 +static void mediaPlayerPrivateVideoBufferCallback(GstElement* fakesink, GstBuffer* buffer, GstPad* pad, MediaPlayerPrivateGStreamer* player)
 +{
-+    player->queueObject(GST_MINI_OBJECT_CAST (gst_buffer_ref (buffer)), TRUE);
++    player->updateEGLMemory(buffer);
 +}
 +
 +static gboolean mediaPlayerPrivateVideoEventCallback(GstPad* pad, GstEvent* event, MediaPlayerPrivateGStreamer* player)
@@ -92,7 +92,7 @@
 +            player->queueFlushStop();
 +            break;
 +        case GST_EVENT_EOS:
-+            player->queueObject(GST_MINI_OBJECT_CAST (gst_event_ref (event)), TRUE);
++            player->queueObject(GST_MINI_OBJECT_CAST (gst_event_ref (event)), FALSE);
 +            break;
 +        default:
 +            break;
@@ -124,22 +124,21 @@
      , m_webkitAudioSink(0)
      , m_totalBytes(-1)
      , m_originalPreloadWasAutoAndWasOverridden(false)
--{
 +#if USE(ACCELERATED_COMPOSITING) && USE(TEXTURE_MAPPER_GL)
 +    , m_texture(0)
 +    , m_textureMapper(0)
 +#endif
 +    , m_queueFlushing(false)
-+    , m_queueLastObject(0)
-+    , m_lastEGLMemory(0)
-+    , m_egl_details(0)
-+{
++    , m_queueLastObject(NULL)
++    , m_currentEGLMemory(NULL)
++    , m_lastEGLMemory(NULL)
++    , m_egl_details(NULL)
+ {
      if (initializeGStreamerAndRegisterWebKitElements())
          createGSTPlayBin();
 +
 +    m_queue = g_async_queue_new_full((GDestroyNotify) gst_mini_object_unref);
 +    m_queueLock = g_mutex_new();
-+    m_flowLock = g_mutex_new();
 +    m_queueCond = g_cond_new();
  }
  
@@ -163,7 +162,7 @@
 -        m_videoSinkBin = 0;
 +    if (m_egl_details) {
 +        delete m_egl_details;
-+        m_egl_details = 0;
++        m_egl_details = NULL;
 +    }
 +
 +    if (m_videoSink) {
@@ -174,7 +173,7 @@
  
      if (m_playBin) {
          gst_element_set_state(m_playBin.get(), GST_STATE_NULL);
-@@ -293,6 +338,25 @@
+@@ -293,6 +338,21 @@
  
      if (m_audioTimerHandler)
          g_source_remove(m_audioTimerHandler);
@@ -189,10 +188,6 @@
 +        g_mutex_free (m_queueLock);
 +    }
 +
-+    if (m_flowLock) {
-+        g_mutex_free (m_flowLock);
-+    }
-+
 +    if (m_queueCond) {
 +        g_cond_free (m_queueCond);
 +    }
@@ -200,7 +195,7 @@
  }
  
  void MediaPlayerPrivateGStreamer::load(const String& url)
-@@ -397,6 +461,8 @@
+@@ -397,6 +457,8 @@
  
  void MediaPlayerPrivateGStreamer::prepareToPlay()
  {
@@ -209,31 +204,21 @@
      m_isEndReached = false;
      m_seeking = false;
  
-@@ -419,9 +485,22 @@
+@@ -419,9 +481,12 @@
      if (m_isEndReached)
          return;
  
 +    /* In case we were waiting for providing a pool dequeue */
 +    dequeueObjects();
 +
-+    queueFlushStart();
-+
-+    g_mutex_lock (m_queueLock);
-+    if (m_lastEGLMemory)
-+        gst_egl_image_memory_unref (m_lastEGLMemory);
-+    m_lastEGLMemory = 0;
-+
      if (changePipelineState(GST_STATE_PAUSED))
          LOG_MEDIA_MESSAGE("Pause");
 -}
-+ 
-+   m_queueFlushing = false;
-+   g_mutex_unlock (m_queueLock);
 +} 
  
  float MediaPlayerPrivateGStreamer::duration() const
  {
-@@ -441,11 +520,8 @@
+@@ -441,11 +506,8 @@
      GstFormat timeFormat = GST_FORMAT_TIME;
      gint64 timeLength = 0;
  
@@ -246,7 +231,7 @@
      if (failure) {
          LOG_MEDIA_MESSAGE("Time duration query failed for %s", m_url.string().utf8().data());
          return numeric_limits<float>::infinity();
-@@ -862,11 +938,7 @@
+@@ -862,11 +924,7 @@
      case GST_MESSAGE_BUFFERING:
          processBufferingStats(message);
          break;
@@ -258,7 +243,7 @@
          LOG_MEDIA_MESSAGE("Duration changed");
          durationChanged();
          break;
-@@ -878,6 +950,288 @@
+@@ -878,6 +936,303 @@
      return TRUE;
  }
  
@@ -273,13 +258,37 @@
 +    return FALSE;
 +}
 +
++void MediaPlayerPrivateGStreamer::updateEGLMemory (GstBuffer * buffer)
++{
++    g_mutex_lock (m_queueLock);
++    if (m_currentEGLMemory) {
++        gst_egl_image_memory_unref (m_currentEGLMemory);
++        m_currentEGLMemory = NULL;
++    }
++    if (GST_BUFFER_FLAG_IS_SET (buffer, GST_BUFFER_FLAG_PREROLL) || m_queueFlushing) {
++        if (m_lastEGLMemory) {
++            gst_egl_image_memory_unref (m_lastEGLMemory);
++            m_lastEGLMemory = NULL;
++        }
++    } else {
++        GstEGLImageMemory *mem = (GstEGLImageMemory *) GST_BUFFER_DATA (buffer);
++        LOG_MEDIA_MESSAGE("Buffer %" GST_TIME_FORMAT " EGL Image: %p", GST_TIME_ARGS(GST_BUFFER_TIMESTAMP (buffer)), gst_egl_image_memory_get_image (mem));
++        m_currentEGLMemory = gst_egl_image_memory_ref (mem);
++        g_timeout_add_full (G_PRIORITY_HIGH, 0, (GSourceFunc) mediaPlayerPrivateProcessQueueCallback,
++            this, NULL);
++    }
++    g_mutex_unlock (m_queueLock);
++}
++
 +gboolean MediaPlayerPrivateGStreamer::queueObject (GstMiniObject * obj, gboolean synchronous)
 +{
-+    g_mutex_lock (m_flowLock);
++    gboolean res = TRUE;
++
++    g_mutex_lock (m_queueLock);
 +    if (m_queueFlushing) {
 +        gst_mini_object_unref (obj);
-+        g_mutex_unlock (m_flowLock);
-+        return FALSE;
++        res = FALSE;
++        goto beach;
 +    }
 +
 +    LOG_MEDIA_MESSAGE("queue object: %p", obj);
@@ -288,53 +297,27 @@
 +    g_timeout_add_full (G_PRIORITY_HIGH, 0, (GSourceFunc) mediaPlayerPrivateProcessQueueCallback,
 +        this, NULL);
 +
-+    g_mutex_lock (m_queueLock);
 +    if (synchronous) {
 +        /* Waiting for object to be handled */
 +        do {
 +            g_cond_wait (m_queueCond, m_queueLock);
 +        } while (!m_queueFlushing && m_queueLastObject != obj);
 +    }
++
++beach:
 +    g_mutex_unlock (m_queueLock);
-+    g_mutex_unlock (m_flowLock);
-+    return TRUE;
++    return res;
 +}
 +
 +void MediaPlayerPrivateGStreamer::dequeueObjects ()
 +{
 +    GstMiniObject *object = NULL;
-+    bool done = false;
-+    gint length = g_async_queue_length (m_queue);
-+
-+    LOG_MEDIA_MESSAGE("queue length: %d", length);
-+    if (length == 0)
-+        return;
 +
 +    g_mutex_lock (m_queueLock);
 +    if (m_queueFlushing) {
 +        g_cond_broadcast (m_queueCond);
-+        done = true;
-+    }
-+    g_mutex_unlock (m_queueLock);
-+
-+    while (!done && (object = GST_MINI_OBJECT_CAST (g_async_queue_try_pop (m_queue)))) {
-+        if (GST_IS_BUFFER (object)) {
-+            GstBuffer *buffer = GST_BUFFER_CAST (object);
-+            g_mutex_lock (m_queueLock);
-+            if (m_lastEGLMemory) {
-+                gst_egl_image_memory_unref (m_lastEGLMemory);
-+                m_lastEGLMemory = 0;
-+            }
-+            if (!GST_BUFFER_FLAG_IS_SET (buffer, GST_BUFFER_FLAG_PREROLL) && !m_queueFlushing) {
-+                GstEGLImageMemory *mem = (GstEGLImageMemory *) GST_BUFFER_DATA (buffer);
-+
-+                m_lastEGLMemory = gst_egl_image_memory_ref (mem);
-+            }
-+            gst_buffer_unref (buffer);
-+            g_mutex_unlock (m_queueLock);
-+            /* Dequeue buffers one by one */
-+            done = true;
-+        } else if (GST_IS_MESSAGE (object)) {
++    } else if ((object = GST_MINI_OBJECT_CAST (g_async_queue_try_pop (m_queue)))) {
++        if (GST_IS_MESSAGE (object)) {
 +            GstMessage *message = GST_MESSAGE_CAST (object);
 +            if (gst_structure_has_name (message->structure, "need-egl-pool")) {
 +                GstElement *element = GST_ELEMENT (GST_MESSAGE_SRC (message));
@@ -351,48 +334,57 @@
 +                }
 +            }
 +            gst_message_unref (message);
-+            done = true;
 +        } else if (GST_IS_EVENT (object)) {
 +            GstEvent *event = GST_EVENT_CAST (object);
 +
 +            switch (GST_EVENT_TYPE (event)) {
 +                case GST_EVENT_EOS:
-+                    g_mutex_lock (m_queueLock);
 +                    if (m_lastEGLMemory) {
 +                        gst_egl_image_memory_unref (m_lastEGLMemory);
-+                        m_lastEGLMemory = 0;
++                        m_lastEGLMemory = NULL;
++                        object = NULL;
 +                    }
-+                    g_mutex_unlock (m_queueLock);
 +                    break;
 +                default:
 +                    break;
 +            }
 +            gst_event_unref (event);
 +        }
-+
-+        g_mutex_lock (m_queueLock);
++    }
++     
++    if (object) {
 +        m_queueLastObject = object;
 +        LOG_MEDIA_MESSAGE("dequeued %p", object);
 +        g_cond_broadcast (m_queueCond);
-+        g_mutex_unlock (m_queueLock);
 +    }
-+    LOG_MEDIA_MESSAGE("done");
++    g_mutex_unlock (m_queueLock);
 +}
 +
 +void MediaPlayerPrivateGStreamer::queueFlushStart()
 +{
 +    LOG_MEDIA_MESSAGE("Flush Start");
++    GstMiniObject *object = NULL;
 +
 +    g_mutex_lock (m_queueLock);
-+    if (m_lastEGLMemory)
-+        gst_egl_image_memory_unref (m_lastEGLMemory);
-+    m_lastEGLMemory = 0;
-+
 +    m_queueFlushing = true;
 +    g_cond_broadcast (m_queueCond);
 +    g_mutex_unlock (m_queueLock);
-+    g_mutex_lock (m_flowLock);
-+    g_mutex_unlock (m_flowLock);
++
++    while ((object = GST_MINI_OBJECT_CAST (g_async_queue_try_pop (m_queue)))) {
++        gst_mini_object_unref (object);
++    }
++
++    g_mutex_lock (m_queueLock);
++    if (m_currentEGLMemory)
++        gst_egl_image_memory_unref (m_currentEGLMemory);
++    m_currentEGLMemory = NULL;
++
++    if (m_lastEGLMemory)
++        gst_egl_image_memory_unref (m_lastEGLMemory);
++    m_lastEGLMemory = NULL;
++
++    m_queueLastObject = NULL;
++    g_mutex_unlock (m_queueLock);
 +}
 +
 +void MediaPlayerPrivateGStreamer::queueFlushStop()
@@ -400,9 +392,13 @@
 +    GstMiniObject *object = NULL;
 +
 +    g_mutex_lock (m_queueLock);
++    if (m_currentEGLMemory)
++        gst_egl_image_memory_unref (m_currentEGLMemory);
++    m_currentEGLMemory = NULL;
++
 +    if (m_lastEGLMemory)
 +        gst_egl_image_memory_unref (m_lastEGLMemory);
-+    m_lastEGLMemory = 0;
++    m_lastEGLMemory = NULL;
 +
 +    while ((object = GST_MINI_OBJECT_CAST (g_async_queue_try_pop (m_queue)))) {
 +        gst_mini_object_unref (object);
@@ -416,9 +412,8 @@
 +void MediaPlayerPrivateGStreamer::updateTexture()
 +{
 +    GstEGLImageMemory *mem;
-+    g_mutex_lock (m_queueLock);
-+    mem = m_lastEGLMemory;
-+    g_mutex_unlock (m_queueLock);
++
++    mem = m_currentEGLMemory;
 +
 +    if (!mem)
 +        return;
@@ -483,6 +478,11 @@
 +    gint i;
 +    EGLint error;
 +    GstEGLDisplay *gst_display;
++    
++    if (!width && !height) {
++      width = 320;
++      height = 200;
++    }
 +
 +    if (!m_egl_details) {
 +        m_egl_details = new EGLDetails();
@@ -547,7 +547,7 @@
  void MediaPlayerPrivateGStreamer::processBufferingStats(GstMessage* message)
  {
      // This is the immediate buffering that needs to happen so we have
-@@ -1004,11 +1358,7 @@
+@@ -1004,11 +1359,7 @@
  
      GstFormat fmt = GST_FORMAT_BYTES;
      gint64 length = 0;
@@ -559,7 +559,7 @@
          LOG_MEDIA_MESSAGE("totalBytes %" G_GINT64_FORMAT, length);
          m_totalBytes = static_cast<unsigned>(length);
          m_isStreaming = !length;
-@@ -1020,17 +1370,6 @@
+@@ -1020,17 +1371,6 @@
      GstIterator* iter = gst_element_iterate_src_pads(m_source.get());
      bool done = false;
      while (!done) {
@@ -577,7 +577,7 @@
          gpointer data;
  
          switch (gst_iterator_next(iter, &data)) {
-@@ -1041,7 +1380,6 @@
+@@ -1041,7 +1381,6 @@
                  length = padLength;
              break;
          }
@@ -585,7 +585,7 @@
          case GST_ITERATOR_RESYNC:
              gst_iterator_resync(iter);
              break;
-@@ -1051,10 +1389,6 @@
+@@ -1051,10 +1390,6 @@
              done = true;
              break;
          }
@@ -596,7 +596,7 @@
      }
  
      gst_iterator_free(iter);
-@@ -1068,16 +1402,14 @@
+@@ -1068,16 +1403,14 @@
  unsigned MediaPlayerPrivateGStreamer::decodedFrameCount() const
  {
      guint64 decodedFrames = 0;
@@ -615,7 +615,7 @@
      return static_cast<unsigned>(framesDropped);
  }
  
-@@ -1098,7 +1430,7 @@
+@@ -1098,7 +1431,7 @@
      GstQuery* query = gst_query_new_position(GST_FORMAT_BYTES);
      gint64 position = 0;
  
@@ -624,7 +624,7 @@
          gst_query_parse_position(query, 0, &position);
  
      gst_query_unref(query);
-@@ -1117,7 +1449,6 @@
+@@ -1117,7 +1450,6 @@
  
  }
  
@@ -632,7 +632,7 @@
  void MediaPlayerPrivateGStreamer::sourceChanged()
  {
      GstElement* srcPtr = 0;
-@@ -1215,7 +1546,7 @@
+@@ -1215,7 +1547,7 @@
  
                  LOG_MEDIA_MESSAGE("[Buffering] Pausing stream for buffering.");
  
@@ -641,7 +641,7 @@
              }
          } else
              m_paused = true;
-@@ -1451,7 +1782,10 @@
+@@ -1451,7 +1783,10 @@
  
      if (!m_player->mediaPlayerClient()->mediaPlayerIsLooping()) {
          m_paused = true;
@@ -652,7 +652,7 @@
      }
  }
  
-@@ -1556,37 +1890,61 @@
+@@ -1556,37 +1891,71 @@
  {
  }
  
@@ -719,11 +719,21 @@
 +    dequeueObjects();
 +
 +    if (m_texture) {
++        g_mutex_lock (m_queueLock);
 +        updateTexture();
 +        TransformationMatrix mmatrix = matrix;
 +        mmatrix.setM22(-mmatrix.m22());
 +        mmatrix.setM42(targetRect.maxY() + mmatrix.m42());
 +        textureMapper->drawTexture(*m_texture.get(), targetRect, mmatrix, opacity);
++        if (m_lastEGLMemory) {
++            gst_egl_image_memory_unref (m_lastEGLMemory);
++            m_lastEGLMemory = NULL;
++        }
++        if (m_currentEGLMemory) {
++            m_lastEGLMemory = m_currentEGLMemory;
++            m_currentEGLMemory = NULL;
++        }
++        g_mutex_unlock (m_queueLock);        
 +    }
 +}
 +#endif
@@ -731,7 +741,221 @@
  static HashSet<String> mimeTypeCache()
  {
      initializeGStreamerAndRegisterWebKitElements();
-@@ -1722,10 +2080,6 @@
+@@ -1594,96 +1963,125 @@
+     DEFINE_STATIC_LOCAL(HashSet<String>, cache, ());
+     static bool typeListInitialized = false;
+ 
+-    if (typeListInitialized)
+-        return cache;
+-    const char* mimeTypes[] = {"application/ogg",
+-                               "application/vnd.apple.mpegurl",
+-                               "application/vnd.rn-realmedia",
+-                               "application/x-3gp",
+-                               "application/x-pn-realaudio",
+-                               "audio/3gpp",
+-                               "audio/aac",
+-                               "audio/flac",
+-                               "audio/iLBC-sh",
+-                               "audio/midi",
+-                               "audio/mobile-xmf",
+-                               "audio/mp1",
+-                               "audio/mp2",
+-                               "audio/mp3",
+-                               "audio/mp4",
+-                               "audio/mpeg",
+-                               "audio/ogg",
+-                               "audio/qcelp",
+-                               "audio/riff-midi",
+-                               "audio/wav",
+-                               "audio/webm",
+-                               "audio/x-ac3",
+-                               "audio/x-aiff",
+-                               "audio/x-amr-nb-sh",
+-                               "audio/x-amr-wb-sh",
+-                               "audio/x-au",
+-                               "audio/x-ay",
+-                               "audio/x-celt",
+-                               "audio/x-dts",
+-                               "audio/x-flac",
+-                               "audio/x-gbs",
+-                               "audio/x-gsm",
+-                               "audio/x-gym",
+-                               "audio/x-imelody",
+-                               "audio/x-ircam",
+-                               "audio/x-kss",
+-                               "audio/x-m4a",
+-                               "audio/x-mod",
+-                               "audio/x-mp3",
+-                               "audio/x-mpeg",
+-                               "audio/x-musepack",
+-                               "audio/x-nist",
+-                               "audio/x-nsf",
+-                               "audio/x-paris",
+-                               "audio/x-sap",
+-                               "audio/x-sbc",
+-                               "audio/x-sds",
+-                               "audio/x-shorten",
+-                               "audio/x-sid",
+-                               "audio/x-spc",
+-                               "audio/x-speex",
+-                               "audio/x-svx",
+-                               "audio/x-ttafile",
+-                               "audio/x-vgm",
+-                               "audio/x-voc",
+-                               "audio/x-vorbis+ogg",
+-                               "audio/x-w64",
+-                               "audio/x-wav",
+-                               "audio/x-wavpack",
+-                               "audio/x-wavpack-correction",
+-                               "video/3gpp",
+-                               "video/mj2",
+-                               "video/mp4",
+-                               "video/mpeg",
+-                               "video/mpegts",
+-                               "video/ogg",
+-                               "video/quicktime",
+-                               "video/vivo",
+-                               "video/webm",
+-                               "video/x-cdxa",
+-                               "video/x-dirac",
+-                               "video/x-dv",
+-                               "video/x-fli",
+-                               "video/x-flv",
+-                               "video/x-h263",
+-                               "video/x-ivf",
+-                               "video/x-m4v",
+-                               "video/x-matroska",
+-                               "video/x-mng",
+-                               "video/x-ms-asf",
+-                               "video/x-msvideo",
+-                               "video/x-mve",
+-                               "video/x-nuv",
+-                               "video/x-vcd"};
++    if (!typeListInitialized) {
++        // Build a whitelist of mime-types known to be supported by
++        // GStreamer.
++        HashSet<String> handledApplicationSubtypes;
++        handledApplicationSubtypes.add(String("ogg"));
++        handledApplicationSubtypes.add(String("vnd.rn-realmedia"));
++        handledApplicationSubtypes.add(String("x-pn-realaudio"));
++
++        GList* factories = gst_type_find_factory_get_list();
++        for (GList* iterator = factories; iterator; iterator = iterator->next) {
++            GstTypeFindFactory* factory = GST_TYPE_FIND_FACTORY(iterator->data);
++            GstCaps* caps = gst_type_find_factory_get_caps(factory);
++            gchar** extensions;
++
++            if (!caps)
++                continue;
++
++            for (guint structureIndex = 0; structureIndex < gst_caps_get_size(caps); structureIndex++) {
++                GstStructure* structure = gst_caps_get_structure(caps, structureIndex);
++                const gchar* name = gst_structure_get_name(structure);
++                bool cached = false;
++
++                // These formats are supported by GStreamer, but not
++                // correctly advertised.
++                if (g_str_equal(name, "video/x-h264")
++                    || g_str_equal(name, "audio/x-m4a")) {
++                    cache.add(String("video/mp4"));
++                    cache.add(String("audio/aac"));
++                    cache.add(String("audio/mp4"));
++                    cached = true;
++                }
++
++                if (g_str_equal(name, "application/x-3gp")) {
++                    cache.add(String("audio/3gpp"));
++                    cache.add(String("video/3gpp"));
++                    cache.add(String("application/x-3gp"));
++                    cached = true;
++                }
++
++                if (g_str_equal(name, "video/x-theora")) {
++                    cache.add(String("video/ogg"));
++                    cached = true;
++                }
++
++                if (g_str_equal(name, "audio/x-vorbis")) {
++                    cache.add(String("audio/ogg"));
++                    cache.add(String("audio/x-vorbis+ogg"));
++                    cached = true;
++                }
+ 
+-    for (unsigned i = 0; i < (sizeof(mimeTypes) / sizeof(*mimeTypes)); ++i)
+-        cache.add(String(mimeTypes[i]));
++                if (g_str_equal(name, "audio/x-wav")) {
++                    cache.add(String("audio/wav"));
++                    cache.add(String("audio/x-wav"));
++                    cached = true;
++                }
++
++                if (g_str_equal(name, "audio/mpeg")) {
++                    cache.add(String(name));
++                    cache.add(String("audio/x-mpeg"));
++                    cached = true;
++
++                    // This is what we are handling:
++                    // mpegversion=(int)1, layer=(int)[ 1, 3 ]
++                    gint mpegVersion = 0;
++                    if (gst_structure_get_int(structure, "mpegversion", &mpegVersion) && (mpegVersion == 1)) {
++                        const GValue* layer = gst_structure_get_value(structure, "layer");
++                        if (G_VALUE_TYPE(layer) == GST_TYPE_INT_RANGE) {
++                            gint minLayer = gst_value_get_int_range_min(layer);
++                            gint maxLayer = gst_value_get_int_range_max(layer);
++                            if (minLayer <= 1 && 1 <= maxLayer)
++                                cache.add(String("audio/mp1"));
++                            if (minLayer <= 2 && 2 <= maxLayer)
++                                cache.add(String("audio/mp2"));
++                            if (minLayer <= 3 && 3 <= maxLayer) {
++                                cache.add(String("audio/x-mp3"));
++                                cache.add(String("audio/mp3"));
++                            }
++                        }
++                    }
++                }
+ 
++                if (g_str_equal(name, "video/webm")) {
++                    cached = true;
++                }
++
++                if (!cached) {
++                    // GStreamer plugins can be capable of supporting
++                    // types which WebKit supports by default. In that
++                    // case, we should not consider these types
++                    // supportable by GStreamer.  Examples of what
++                    // GStreamer can support but should not be added:
++                    // text/plain, text/html, image/jpeg,
++                    // application/xml
++                    gchar** mimetype = g_strsplit(name, "/", 2);
++                    if (g_str_equal(mimetype[0], "audio")
++                        || g_str_equal(mimetype[0], "video")
++                        || (g_str_equal(mimetype[0], "application")
++                            && handledApplicationSubtypes.contains(String(mimetype[1]))))
++                        cache.add(String(name));
++
++                    g_strfreev(mimetype);
++                }
++
++                // As a last resort try some special cases depending
++                // on the file extensions registered with the typefind
++                // factory.
++                if (!cached && (extensions = gst_type_find_factory_get_extensions(factory))) {
++                    for (int index = 0; extensions[index]; index++) {
++                        if (g_str_equal(extensions[index], "m4v"))
++                            cache.add(String("video/x-m4v"));
++                    }
++                }
++            }
++        }
++
++        gst_plugin_feature_list_free(factories);
++        typeListInitialized = true;
++    }
++ 
+     typeListInitialized = true;
+     return cache;
+ }
+@@ -1722,10 +2120,6 @@
  PlatformMedia MediaPlayerPrivateGStreamer::platformMedia() const
  {
      PlatformMedia p;
@@ -742,7 +966,7 @@
      return p;
  }
  
-@@ -1772,11 +2126,8 @@
+@@ -1772,11 +2166,8 @@
      // we should not adopt.
      m_playBin = gst_element_factory_make(gPlaybinName, "play");
  
@@ -755,7 +979,7 @@
      gst_bus_add_signal_watch(bus);
      g_signal_connect(bus, "message", G_CALLBACK(mediaPlayerPrivateMessageCallback), this);
      gst_object_unref(bus);
-@@ -1789,96 +2140,18 @@
+@@ -1789,96 +2180,19 @@
      g_signal_connect(m_playBin.get(), "video-changed", G_CALLBACK(mediaPlayerPrivateVideoChangedCallback), this);
      g_signal_connect(m_playBin.get(), "audio-changed", G_CALLBACK(mediaPlayerPrivateAudioChangedCallback), this);
  
@@ -852,6 +1076,7 @@
 +    m_videoSink = gst_element_factory_make("fakesink", "vsink");
 +    g_object_set (m_videoSink, "sync", TRUE, "silent", TRUE,
 +        "enable-last-buffer", FALSE,
++        "qos", TRUE,
 +        "max-lateness", 20 * GST_MSECOND, "signal-handoffs", TRUE, NULL);
 +    g_signal_connect (m_videoSink, "preroll-handoff", G_CALLBACK (mediaPlayerPrivateVideoPrerollCallback), this);
 +    g_signal_connect (m_videoSink, "handoff", G_CALLBACK (mediaPlayerPrivateVideoBufferCallback), this);
@@ -864,7 +1089,6 @@
  }
  
  }
-
 --- a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamer.h
 +++ b/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamer.h
 @@ -32,11 +32,19 @@
@@ -902,7 +1126,7 @@
          public:
              ~MediaPlayerPrivateGStreamer();
              static void registerMediaEngine(MediaEngineRegistrar);
-@@ -124,8 +135,20 @@
+@@ -124,8 +135,21 @@
              unsigned audioDecodedByteCount() const;
              unsigned videoDecodedByteCount() const;
  
@@ -914,6 +1138,7 @@
 + 
              MediaPlayer::MovieLoadType movieLoadType() const;
  
++            void updateEGLMemory (GstBuffer * buffer);
 +            gboolean queueObject(GstMiniObject * obj, gboolean synchronous);
 +            void dequeueObjects();
 +            void queueFlushStart();
@@ -923,7 +1148,7 @@
          private:
              MediaPlayerPrivateGStreamer(MediaPlayer*);
  
-@@ -155,12 +178,14 @@
+@@ -155,12 +179,14 @@
              virtual String engineDescription() const { return "GStreamer"; }
              bool isLiveStream() const { return m_isStreaming; }
  
@@ -941,7 +1166,7 @@
              GRefPtr<GstElement> m_source;
              float m_seekTime;
              bool m_changingRate;
-@@ -170,7 +195,6 @@
+@@ -170,7 +196,6 @@
              MediaPlayer::ReadyState m_readyState;
              mutable bool m_isStreaming;
              IntSize m_size;
@@ -949,7 +1174,7 @@
              GstStructure* m_mediaLocations;
              int m_mediaLocationCurrentIndex;
              bool m_resetPipeline;
-@@ -188,9 +212,6 @@
+@@ -188,9 +213,6 @@
              bool m_delayingLoad;
              bool m_mediaDurationKnown;
              mutable float m_maxTimeLoadedAtLastDidLoadingProgress;
@@ -959,7 +1184,7 @@
              guint m_volumeTimerHandler;
              guint m_muteTimerHandler;
              bool m_hasVideo;
-@@ -203,6 +224,18 @@
+@@ -203,6 +225,18 @@
              mutable IntSize m_videoSize;
              KURL m_url;
              bool m_originalPreloadWasAutoAndWasOverridden;
@@ -969,15 +1194,15 @@
 +#endif
 +            GAsyncQueue *m_queue;
 +            GMutex *m_queueLock;
-+            GMutex *m_flowLock;        
 +            GCond *m_queueCond;
 +            bool m_queueFlushing;
 +            GstMiniObject *m_queueLastObject;
++            GstEGLImageMemory *m_currentEGLMemory;
 +            GstEGLImageMemory *m_lastEGLMemory;
 +            EGLDetails *m_egl_details;
      };
  }
-
+ 
 --- a/Source/WebCore/platform/graphics/texmap/GraphicsLayerTextureMapper.h
 +++ b/Source/WebCore/platform/graphics/texmap/GraphicsLayerTextureMapper.h
 @@ -68,6 +68,7 @@
