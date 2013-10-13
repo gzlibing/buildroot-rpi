@@ -966,7 +966,7 @@
      return p;
  }
  
-@@ -1772,11 +2166,8 @@
+@@ -1772,16 +2166,13 @@
      // we should not adopt.
      m_playBin = gst_element_factory_make(gPlaybinName, "play");
  
@@ -979,6 +979,12 @@
      gst_bus_add_signal_watch(bus);
      g_signal_connect(bus, "message", G_CALLBACK(mediaPlayerPrivateMessageCallback), this);
      gst_object_unref(bus);
+ 
+-    g_object_set(m_playBin.get(), "mute", m_player->muted(), NULL);
++    g_object_set(m_playBin.get(), "mute", m_player->muted(), "flags", GST_PLAY_FLAG_NATIVE_VIDEO | GST_PLAY_FLAG_SOFT_VOLUME | GST_PLAY_FLAG_AUDIO | GST_PLAY_FLAG_VIDEO, NULL);
+ 
+     g_signal_connect(m_playBin.get(), "notify::volume", G_CALLBACK(mediaPlayerPrivateVolumeChangedCallback), this);
+     g_signal_connect(m_playBin.get(), "notify::source", G_CALLBACK(mediaPlayerPrivateSourceChangedCallback), this);
 @@ -1789,96 +2180,19 @@
      g_signal_connect(m_playBin.get(), "video-changed", G_CALLBACK(mediaPlayerPrivateVideoChangedCallback), this);
      g_signal_connect(m_playBin.get(), "audio-changed", G_CALLBACK(mediaPlayerPrivateAudioChangedCallback), this);
@@ -1213,7 +1219,6 @@
      virtual void flushCompositingState(const FloatRect&);
      virtual void flushCompositingStateForThisLayerOnly();
      virtual void setName(const String& name);
-
 --- a/Source/WebCore/rendering/RenderLayerBacking.cpp
 +++ b/Source/WebCore/rendering/RenderLayerBacking.cpp
 @@ -1477,9 +1477,14 @@
@@ -1253,9 +1258,8 @@
      }
  
      if (m_foregroundLayer && m_foregroundLayer->drawsContent()) {
-
---- a/Source/WebCore/WebCore.pri	2013-05-31 12:27:22.732263340 +0200
-+++ a/Source/WebCore/WebCore.pri	2013-05-31 12:28:52.268260673 +0200
+--- a/Source/WebCore/WebCore.pri
++++ b/Source/WebCore/WebCore.pri
 @@ -168,7 +168,7 @@
  use?(GSTREAMER) {
      DEFINES += ENABLE_GLIB_SUPPORT=1
