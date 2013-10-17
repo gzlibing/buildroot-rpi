@@ -4,9 +4,9 @@
 #
 #############################################################
 
-MLBROWSER_VERSION = 67ff53b435218b1c84ec75b1097d41dfe895eb41
+MLBROWSER_VERSION = e60688f9bddbbb50a36efc76c3cf8a059881b047
 MLBROWSER_SITE_METHOD = git
-MLBROWSER_SITE = https://github.com/msieben/mlbrowser.git
+MLBROWSER_SITE = https://github.com/albertd/mlbrowser.git
 
 ifeq ($(BR2_PACKAGE_QT5WEBKIT),y)
 MLBROWSER_DEPENDENCIES = qt5webkit
@@ -21,8 +21,6 @@ define MLBROWSER_CONFIGURE_CMDS
 		$(TARGET_MAKE_ENV) \
 		$(HOST_DIR)/usr/bin/qmake \
 			DEFINES+=_BROWSER_ \
-			DEFINES+=_MOUSE_ \
-			DEFINES+=_PROPERTYCHANGER_ \
 			./src/mlbrowser.pro \
 	)
 endef
