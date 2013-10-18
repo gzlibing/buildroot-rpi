@@ -9,7 +9,7 @@ GST_FLUDASH_SITE_METHOD = local
 GST_FLUDASH_LICENSE = PROPRIETARY
 GST_FLUDASH_REDISTRIBUTE = NO
 
-GST_FLUDASH_DEPENDENCIES += gst-flucodecpack
+GST_FLUDASH_DEPENDENCIES += gst-flucodecpack libxml2
 
 define GST_FLUDASH_INSTALL_TARGET_CMDS
 	if [ ! -f $(@D)/fludash.bin ]; then \
