@@ -1,6 +1,5 @@
-diff -urN qt5webkit-5.2.0-beta1.orig/Source/WebKit/qt/Api/qwebsettings.cpp qt5webkit-5.2.0-beta1/Source/WebKit/qt/Api/qwebsettings.cpp
---- qt5webkit-5.2.0-beta1.orig/Source/WebKit/qt/Api/qwebsettings.cpp	2013-10-22 10:49:35.000000000 +0200
-+++ qt5webkit-5.2.0-beta1/Source/WebKit/qt/Api/qwebsettings.cpp	2013-10-23 13:58:06.448922771 +0200
+--- a/Source/WebKit/qt/Api/qwebsettings.cpp
++++ b/Source/WebKit/qt/Api/qwebsettings.cpp
 @@ -294,6 +294,10 @@
          settings->setNeedsSiteSpecificQuirks(value);
  
@@ -20,9 +19,8 @@ diff -urN qt5webkit-5.2.0-beta1.orig/Source/WebKit/qt/Api/qwebsettings.cpp qt5we
  }
  
  /*!
-diff -urN qt5webkit-5.2.0-beta1.orig/Source/WebKit/qt/Api/qwebsettings.h qt5webkit-5.2.0-beta1/Source/WebKit/qt/Api/qwebsettings.h
---- qt5webkit-5.2.0-beta1.orig/Source/WebKit/qt/Api/qwebsettings.h	2013-10-22 10:49:35.000000000 +0200
-+++ qt5webkit-5.2.0-beta1/Source/WebKit/qt/Api/qwebsettings.h	2013-10-23 13:56:59.824921787 +0200
+--- a/Source/WebKit/qt/Api/qwebsettings.h	2013-10-22 10:49:35.000000000 +0200
++++ b/Source/WebKit/qt/Api/qwebsettings.h	2013-10-23 13:56:59.824921787 +0200
 @@ -87,7 +87,8 @@
          CaretBrowsingEnabled,
          NotificationsEnabled,

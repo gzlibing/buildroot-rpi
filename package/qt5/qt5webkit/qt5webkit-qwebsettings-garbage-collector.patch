@@ -1,6 +1,6 @@
 --- a/Source/WebKit/qt/Api/qwebsettings.cpp
 +++ b/Source/WebKit/qt/Api/qwebsettings.cpp
-@@ -872,6 +872,11 @@
+@@ -867,6 +867,11 @@
      WTF::releaseFastMallocFreeMemory();        
  }
  
@@ -14,7 +14,7 @@
  
 --- a/Source/WebKit/qt/Api/qwebsettings.h
 +++ b/Source/WebKit/qt/Api/qwebsettings.h
-@@ -161,6 +161,8 @@
+@@ -160,6 +160,8 @@
  
      static void clearMemoryCaches();
  
