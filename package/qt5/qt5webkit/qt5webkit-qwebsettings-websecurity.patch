@@ -19,8 +19,8 @@
  }
  
  /*!
---- a/Source/WebKit/qt/Api/qwebsettings.h	2013-10-22 10:49:35.000000000 +0200
-+++ b/Source/WebKit/qt/Api/qwebsettings.h	2013-10-23 13:56:59.824921787 +0200
+--- a/Source/WebKit/qt/Api/qwebsettings.h
++++ b/Source/WebKit/qt/Api/qwebsettings.h
 @@ -87,7 +87,8 @@
          CaretBrowsingEnabled,
          NotificationsEnabled,
