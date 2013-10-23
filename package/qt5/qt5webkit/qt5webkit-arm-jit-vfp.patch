@@ -1,6 +1,6 @@
 --- a/Source/WTF/wtf/Platform.h
 +++ b/Source/WTF/wtf/Platform.h
-@@ -170,6 +170,7 @@
+@@ -177,6 +177,7 @@
  #define WTF_CPU_ARM 1
  
  #if defined(__ARM_PCS_VFP)
@@ -8,12 +8,3 @@
  #define WTF_CPU_ARM_HARDFP 1
  #endif
  
-@@ -936,7 +937,7 @@
- #endif
- /* Enable the DFG JIT on ARM. */
- #if CPU(ARM_TRADITIONAL)
--#define ENABLE_DFG_JIT 1
-+#define ENABLE_DFG_JIT 0
- #endif
- /* Enable the DFG JIT on MIPS. */
- #if CPU(MIPS)
