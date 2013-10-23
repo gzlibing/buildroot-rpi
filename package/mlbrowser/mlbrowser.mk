@@ -4,7 +4,7 @@
 #
 #############################################################
 
-MLBROWSER_VERSION = e05b8e1bad1fb395e846c373f82d6e907f1c3485
+MLBROWSER_VERSION = 4511ee7507e66a14dbdfa3f3b894c344bd5537e7
 MLBROWSER_SITE_METHOD = git
 MLBROWSER_SITE = https://github.com/albertd/mlbrowser.git
 
@@ -21,6 +21,7 @@ define MLBROWSER_CONFIGURE_CMDS
 		$(TARGET_MAKE_ENV) \
 		$(HOST_DIR)/usr/bin/qmake \
 			DEFINES+=_BROWSER_ \
+			DEFINES+=_DEBUG_TOOLS_ \
 			./src/mlbrowser.pro \
 	)
 endef
