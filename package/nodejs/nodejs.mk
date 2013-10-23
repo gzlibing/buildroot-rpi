@@ -45,13 +45,14 @@ else ifeq ($(BR2_x86_64),y)
 NODEJS_CPU=x64
 else ifeq ($(BR2_arm),y)
 NODEJS_CPU=arm
-# V8 needs to know what floating point ABI the target is using.  There's also
-# a 'hard' option which we're not exposing here at the moment, because
-# buildroot itself doesn't really support it at present.
 ifeq ($(BR2_SOFT_FLOAT),y)
 NODEJS_ARM_FP=soft
 else
+ifeq ($(BR2_PACKAGE_RPI_FIRMWARE),y)
+NODEJS_ARM_FP=hard
+else
 NODEJS_ARM_FP=softfp
+endif
 endif
 endif
 
