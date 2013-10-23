@@ -1,0 +1,25 @@
+--- a/Source/WebKit/qt/Api/qwebsettings.cpp
++++ b/Source/WebKit/qt/Api/qwebsettings.cpp
+@@ -872,6 +872,11 @@
+     WTF::releaseFastMallocFreeMemory();        
+ }
+ 
++void QWebSettings::garbageCollectNow()
++{
++    WebCore::gcController().garbageCollectNow();
++}
++
+ /*!
+     Sets the maximum number of pages to hold in the memory page cache to \a pages.
+ 
+--- a/Source/WebKit/qt/Api/qwebsettings.h
++++ b/Source/WebKit/qt/Api/qwebsettings.h
+@@ -161,6 +161,8 @@
+ 
+     static void clearMemoryCaches();
+ 
++    static void garbageCollectNow();
++
+     static void enablePersistentStorage(const QString& path = QString());
+ 
+     void setThirdPartyCookiePolicy(ThirdPartyCookiePolicy);

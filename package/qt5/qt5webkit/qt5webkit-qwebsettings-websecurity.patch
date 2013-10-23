@@ -1,19 +1,7 @@
---- a/Source/WebKit/qt/Api/qwebsettings.h
-+++ b/Source/WebKit/qt/Api/qwebsettings.h
-@@ -82,7 +82,8 @@
-         CSSGridLayoutEnabled,
-         ScrollAnimatorEnabled,
-         CaretBrowsingEnabled,
--        NotificationsEnabled
-+        NotificationsEnabled,
-+        WebSecurityEnabled
-     };
-     enum WebGraphic {
-         MissingImageGraphic,
-
---- a/Source/WebKit/qt/Api/qwebsettings.cpp
-+++ b/Source/WebKit/qt/Api/qwebsettings.cpp
-@@ -284,6 +284,11 @@
+diff -urN qt5webkit-5.2.0-beta1.orig/Source/WebKit/qt/Api/qwebsettings.cpp qt5webkit-5.2.0-beta1/Source/WebKit/qt/Api/qwebsettings.cpp
+--- qt5webkit-5.2.0-beta1.orig/Source/WebKit/qt/Api/qwebsettings.cpp	2013-10-22 10:49:35.000000000 +0200
++++ qt5webkit-5.2.0-beta1/Source/WebKit/qt/Api/qwebsettings.cpp	2013-10-23 13:58:06.448922771 +0200
+@@ -294,6 +294,10 @@
          settings->setNeedsSiteSpecificQuirks(value);
  
          settings->setUsesPageCache(WebCore::pageCache()->capacity());
@@ -21,11 +9,10 @@
 +        value = attributes.value(QWebSettings::WebSecurityEnabled,
 +                                     global->attributes.value(QWebSettings::WebSecurityEnabled));
 +        settings->setWebSecurityEnabled(value);
-+
      } else {
          QList<QWebSettingsPrivate*> settings = *::allSettings();
          for (int i = 0; i < settings.count(); ++i)
-@@ -552,6 +557,7 @@
+@@ -569,6 +573,7 @@
      d->offlineStorageDefaultQuota = 5 * 1024 * 1024;
      d->defaultTextEncoding = QLatin1String("iso-8859-1");
      d->thirdPartyCookiePolicy = AlwaysAllowThirdPartyCookies;
@@ -33,3 +20,16 @@
  }
  
  /*!
+diff -urN qt5webkit-5.2.0-beta1.orig/Source/WebKit/qt/Api/qwebsettings.h qt5webkit-5.2.0-beta1/Source/WebKit/qt/Api/qwebsettings.h
+--- qt5webkit-5.2.0-beta1.orig/Source/WebKit/qt/Api/qwebsettings.h	2013-10-22 10:49:35.000000000 +0200
++++ qt5webkit-5.2.0-beta1/Source/WebKit/qt/Api/qwebsettings.h	2013-10-23 13:56:59.824921787 +0200
+@@ -87,7 +87,8 @@
+         CaretBrowsingEnabled,
+         NotificationsEnabled,
+         WebAudioEnabled,
+-        CanvasPathEnabled
++        CanvasPathEnabled,
++        WebSecurityEnabled
+     };
+     enum WebGraphic {
+         MissingImageGraphic,

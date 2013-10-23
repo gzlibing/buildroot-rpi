@@ -1,6 +1,6 @@
 --- a/Tools/DumpRenderTree/qt/DumpRenderTreeMain.cpp
 +++ b/Tools/DumpRenderTree/qt/DumpRenderTreeMain.cpp
-@@ -115,7 +115,9 @@
+@@ -111,7 +111,9 @@
      if (suppressQtDebugOutput)
          qInstallMessageHandler(messageHandler);
  
@@ -12,7 +12,7 @@
      QApplication::setDesktopSettingsAware(false);
 --- a/Tools/DumpRenderTree/qt/DumpRenderTreeQt.cpp
 --- b/Tools/DumpRenderTree/qt/DumpRenderTreeQt.cpp
-@@ -622,10 +622,10 @@
+@@ -634,10 +634,10 @@
      QFocusEvent ev(QEvent::FocusIn);
      m_page->event(&ev);
  

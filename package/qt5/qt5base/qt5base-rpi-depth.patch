@@ -1,24 +1,16 @@
---- a/mkspecs/devices/linux-rasp-pi-g++/qeglfshooks_pi.cpp	2013-10-12 16:40:37.902903779 +0200
-+++ b/mkspecs/devices/linux-rasp-pi-g++/qeglfshooks_pi.cpp	2013-10-12 16:41:01.478903566 +0200
-@@ -154,7 +154,7 @@
-         platformFormat.setGreenBufferSize(8);
-         platformFormat.setBlueBufferSize(8);
-         platformFormat.setAlphaBufferSize(8);
--        m_config = q_configFromGLFormat(m_screen->display(), platformFormat);
-+        m_config = q_configFromGLFormat(m_screen->display(), platformFormat, true);
- 
-         createSurface();
-         createContext();
-@@ -236,6 +236,7 @@
-     virtual EGLNativeWindowType createNativeWindow(const QSize &size, const QSurfaceFormat &format);
+--- a/mkspecs/devices/linux-rasp-pi-g++/qeglfshooks_pi.cpp	2013-10-23 12:18:15.924834340 +0200
++++ b/mkspecs/devices/linux-rasp-pi-g++/qeglfshooks_pi.cpp	2013-10-23 12:18:25.104834476 +0200
+@@ -146,7 +146,7 @@
+     virtual EGLNativeWindowType createNativeWindow(QPlatformWindow *window, const QSize &size, const QSurfaceFormat &format);
      virtual void destroyNativeWindow(EGLNativeWindowType window);
      virtual bool hasCapability(QPlatformIntegration::Capability cap) const;
+-
 +    virtual QSurfaceFormat surfaceFormatFor(const QSurfaceFormat &inputFormat) const;
+ };
  
-     QEglFSCursor *createCursor(QEglFSScreen *screen) const {
-         return new QEglFSPiCursor(screen);
-@@ -270,6 +271,18 @@
-     return createDispmanxLayer(QPoint(0, 0), size, 1, format.hasAlpha() ? DISPMANX_FLAGS_ALPHA_FROM_SOURCE : DISPMANX_FLAGS_ALPHA_FIXED_ALL_PIXELS);
+ void QEglFSPiHooks::platformInit()
+@@ -196,6 +196,18 @@
+     }
  }
  
 +QSurfaceFormat QEglFSPiHooks::surfaceFormatFor(const QSurfaceFormat &inputFormat) const
@@ -33,6 +25,6 @@
 +    return format;
 +}
 +
- void QEglFSPiHooks::destroyNativeWindow(EGLNativeWindowType window)
- {
-     destroyDispmanxLayer(window);
+ QEglFSPiHooks eglFSPiHooks;
+ QEglFSHooks *platformHooks = &eglFSPiHooks;
+ 
