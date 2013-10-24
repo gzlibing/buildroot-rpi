@@ -43,8 +43,10 @@ define QT5WEBKIT_CONFIGURE_CMDS
 		$(HOST_DIR)/usr/bin/qmake \
 			WEBKIT_CONFIG-=svg \
 			WEBKIT_CONFIG+=accelerated_2d_canvas \
+			WEBKIT_CONFIG+=system_malloc \
 			CONFIG+=release \
 			$(DEBUG_CONFIG)\
+			DEFINES+=USE_SYSTEM_MALLOC \
 			DEFINES+=_GSTREAMER_QOS_ \
 	)
 endef
