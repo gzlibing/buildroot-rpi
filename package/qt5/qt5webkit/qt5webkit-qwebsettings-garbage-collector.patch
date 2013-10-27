@@ -1,6 +1,6 @@
 --- a/Source/WebKit/qt/Api/qwebsettings.cpp
 +++ b/Source/WebKit/qt/Api/qwebsettings.cpp
-@@ -867,6 +867,11 @@
+@@ -878,6 +878,11 @@
      WTF::releaseFastMallocFreeMemory();        
  }
  
@@ -14,7 +14,7 @@
  
 --- a/Source/WebKit/qt/Api/qwebsettings.h
 +++ b/Source/WebKit/qt/Api/qwebsettings.h
-@@ -160,6 +160,8 @@
+@@ -162,6 +162,8 @@
  
      static void clearMemoryCaches();
  
@@ -23,3 +23,4 @@
      static void enablePersistentStorage(const QString& path = QString());
  
      void setThirdPartyCookiePolicy(ThirdPartyCookiePolicy);
+
