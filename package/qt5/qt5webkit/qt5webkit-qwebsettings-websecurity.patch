@@ -1,6 +1,6 @@
 --- a/Source/WebKit/qt/Api/qwebsettings.cpp
 +++ b/Source/WebKit/qt/Api/qwebsettings.cpp
-@@ -294,6 +294,10 @@
+@@ -302,6 +302,10 @@
          settings->setNeedsSiteSpecificQuirks(value);
  
          settings->setUsesPageCache(WebCore::pageCache()->capacity());
@@ -11,7 +11,7 @@
      } else {
          QList<QWebSettingsPrivate*> settings = *::allSettings();
          for (int i = 0; i < settings.count(); ++i)
-@@ -569,6 +573,7 @@
+@@ -580,6 +584,7 @@
      d->offlineStorageDefaultQuota = 5 * 1024 * 1024;
      d->defaultTextEncoding = QLatin1String("iso-8859-1");
      d->thirdPartyCookiePolicy = AlwaysAllowThirdPartyCookies;
@@ -21,12 +21,12 @@
  /*!
 --- a/Source/WebKit/qt/Api/qwebsettings.h
 +++ b/Source/WebKit/qt/Api/qwebsettings.h
-@@ -87,7 +87,8 @@
-         CaretBrowsingEnabled,
-         NotificationsEnabled,
+@@ -89,7 +89,8 @@
          WebAudioEnabled,
--        CanvasPathEnabled
-+        CanvasPathEnabled,
+         CanvasPathEnabled,
+         RepaintCounter,
+-        DebugBorder
++        DebugBorder,
 +        WebSecurityEnabled
      };
      enum WebGraphic {
