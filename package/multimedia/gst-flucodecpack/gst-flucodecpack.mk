@@ -25,6 +25,7 @@ define GST_FLUCODECPACK_INSTALL_TARGET_CMDS
 		$(INSTALL) -m 755 $(@D)/flump3dec.bin $(TARGET_DIR)/usr/lib/gstreamer-0.10/libgstflump3dec.so; \
 		$(INSTALL) -m 755 $(@D)/flumpegdemux.bin $(TARGET_DIR)/usr/lib/gstreamer-0.10/libgstflumpegdemux.so; \
 		$(INSTALL) -m 755 $(@D)/fluwmadec.bin $(TARGET_DIR)/usr/lib/gstreamer-0.10/libgstfluwmadec.so; \
+		$(INSTALL) -m 755 $(@D)/flussdemux.bin $(TARGET_DIR)/usr/lib/gstreamer-0.10/libgstflussdemux.so; \
 		(cd $(TARGET_DIR)/usr/lib/; \
 			ln -sfn libfludownloader.so.0.0.0 libfludownloader.so.0; \
 			ln -sfn libfludownloader.so.0 libfludownloader.so; \
