@@ -3,7 +3,7 @@
 # gst-plugins-base
 #
 #############################################################
-GST_PLUGINS_BASE_VERSION = c1961761a7f30d5e660cd46c096e0b288acce950
+GST_PLUGINS_BASE_VERSION = 48d5966f12d4e6b71c96db0600cf76ef0ef14b3a
 GST_PLUGINS_BASE_SOURCE = gst-plugins-base-$(GST_PLUGINS_BASE_VERSION).tar.gz
 GST_PLUGINS_BASE_SITE = http://cgit.freedesktop.org/gstreamer-sdk/gst-plugins-base/snapshot/
 GST_PLUGINS_BASE_INSTALL_STAGING = YES
