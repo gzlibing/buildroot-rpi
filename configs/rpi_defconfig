@@ -145,7 +145,7 @@ BR2_TARGET_ROOTFS_CPIO_XZ=y
 
 BR2_LINUX_KERNEL=y
 BR2_LINUX_KERNEL_CUSTOM_TARBALL=y
-BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION="https://github.com/raspberrypi/linux/tarball/rpi-3.9.y/d5572370289f698b101f3d0198b1c99f17f0d278.tar.gz"
+BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION="https://github.com/raspberrypi/linux/tarball/rpi-3.10.y/b49aafd02fa7572d387acd34550beea5b4c3d239.tar.gz"
 BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG=y
 BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE="board/arm/rpi/linux.config"
 BR2_LINUX_KERNEL_PATCH="board/arm/rpi/linux.patch"
