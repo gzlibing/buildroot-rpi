@@ -45,9 +45,9 @@ define QT5WEBKIT_CONFIGURE_CMDS
 			WEBKIT_CONFIG+=accelerated_2d_canvas \
 			WEBKIT_CONFIG+=system_malloc \
 			CONFIG+=release \
+			CONFIG+=use_gstreamer010 \
 			$(DEBUG_CONFIG)\
 			DEFINES+=USE_SYSTEM_MALLOC \
-			DEFINES+=_GSTREAMER_QOS_ \
 	)
 endef
 

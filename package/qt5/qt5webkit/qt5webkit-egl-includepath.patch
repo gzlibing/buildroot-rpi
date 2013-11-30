@@ -1,6 +1,6 @@
 --- a/Source/WebCore/Target.pri
 +++ b/Source/WebCore/Target.pri
-@@ -4162,15 +4162,19 @@
+@@ -4164,15 +4164,19 @@
  
      contains(QT_CONFIG, opengl) | contains(QT_CONFIG, opengles2) {
          !contains(QT_CONFIG, opengles2) {
