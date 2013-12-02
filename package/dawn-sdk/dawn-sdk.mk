@@ -18,7 +18,7 @@ define DAWN_SDK_INSTALL_STAGING_CMDS
 endef
 
 define DAWN_SDK_INSTALL_TARGET_CMDS
-	cp -Rf $(@D)/lib/* $(STAGING_DIR)/usr/lib/
+	cp -Rf $(@D)/lib/* $(TARGET_DIR)/usr/lib/
 endef
 
 $(eval $(generic-package))
