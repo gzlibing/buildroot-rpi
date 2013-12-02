@@ -6,6 +6,10 @@
 
 LIBGLES_SOURCE =
 
+ifeq ($(BR2_PACKAGE_DAWN_SDK),y)
+LIBGLES_DEPENDENCIES += dawn-sdk
+endif
+
 ifeq ($(BR2_PACKAGE_RPI_USERLAND),y)
 LIBGLES_DEPENDENCIES += rpi-userland
 endif
