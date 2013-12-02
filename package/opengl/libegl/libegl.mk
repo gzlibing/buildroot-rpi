@@ -6,6 +6,10 @@
 
 LIBEGL_SOURCE =
 
+ifeq ($(BR2_PACKAGE_DAWN_SDK),y)
+LIBEGL_DEPENDENCIES += dawn-sdk
+endif
+
 ifeq ($(BR2_PACKAGE_RPI_USERLAND),y)
 LIBEGL_DEPENDENCIES += rpi-userland
 endif
