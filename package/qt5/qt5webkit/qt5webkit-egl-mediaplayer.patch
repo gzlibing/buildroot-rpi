@@ -1,6 +1,6 @@
 diff -ur a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.cpp b/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.cpp
 --- a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.cpp	2013-10-22 10:49:39.000000000 +0200
-+++ b/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.cpp	2013-12-02 16:09:35.000000000 +0100
++++ b/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.cpp	2013-12-02 15:52:38.000000000 +0100
 @@ -51,10 +51,25 @@
  #include <gst/interfaces/streamvolume.h>
  #endif
@@ -82,7 +82,7 @@ diff -ur a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreame
  {
  #if GLIB_CHECK_VERSION(2, 31, 0)
      m_bufferMutex = WTF::fastNew<GMutex>();
-@@ -122,6 +173,12 @@
+@@ -122,11 +173,23 @@
  #else
      m_bufferMutex = g_mutex_new();
  #endif
@@ -95,7 +95,19 @@ diff -ur a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreame
  }
  
  MediaPlayerPrivateGStreamerBase::~MediaPlayerPrivateGStreamerBase()
-@@ -157,10 +214,32 @@
+ {
+-    g_signal_handler_disconnect(m_webkitVideoSink.get(), m_repaintHandler);
++    if (m_repaintHandler) {
++        g_signal_handler_disconnect(m_webkitVideoSink.get(), m_repaintHandler);
++        m_repaintHandler = 0;
++    }
++
++    g_signal_handlers_disconnect_by_func(m_webkitVideoSink.get(), reinterpret_cast<gpointer>(mediaPlayerPrivateVideoPrerollCallback), this);
++    g_signal_handlers_disconnect_by_func(m_webkitVideoSink.get(), reinterpret_cast<gpointer>(mediaPlayerPrivateVideoBufferCallback), this);
+ 
+ #if GLIB_CHECK_VERSION(2, 31, 0)
+     g_mutex_clear(m_bufferMutex);
+@@ -157,10 +220,32 @@
          m_muteSignalHandler = 0;
      }
  
@@ -128,7 +140,7 @@ diff -ur a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreame
  }
  
  // Returns the size of the video
-@@ -320,8 +399,275 @@
+@@ -320,8 +405,275 @@
      m_muteTimerHandler = g_timeout_add(0, reinterpret_cast<GSourceFunc>(mediaPlayerPrivateMuteChangeTimeoutCallback), this);
  }
  
@@ -405,7 +417,7 @@ diff -ur a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreame
  PassRefPtr<BitmapTexture> MediaPlayerPrivateGStreamerBase::updateTexture(TextureMapper* textureMapper)
  {
      g_mutex_lock(m_bufferMutex);
-@@ -383,7 +729,38 @@
+@@ -383,7 +735,38 @@
      g_mutex_unlock(m_bufferMutex);
      return texture;
  }
@@ -444,7 +456,7 @@ diff -ur a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreame
  
  void MediaPlayerPrivateGStreamerBase::triggerRepaint(GstBuffer* buffer)
  {
-@@ -410,7 +787,7 @@
+@@ -410,7 +793,7 @@
  
  void MediaPlayerPrivateGStreamerBase::paint(GraphicsContext* context, const IntRect& rect)
  {
@@ -453,7 +465,7 @@ diff -ur a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreame
      if (client())
          return;
  #endif
-@@ -448,7 +825,7 @@
+@@ -448,7 +831,7 @@
      g_mutex_unlock(m_bufferMutex);
  }
  
@@ -462,7 +474,7 @@ diff -ur a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreame
  void MediaPlayerPrivateGStreamerBase::paintToTextureMapper(TextureMapper* textureMapper, const FloatRect& targetRect, const TransformationMatrix& matrix, float opacity)
  {
      if (textureMapper->accelerationMode() != TextureMapper::OpenGLMode)
-@@ -457,9 +834,40 @@
+@@ -457,9 +840,40 @@
      if (!m_player->visible())
          return;
  
@@ -503,7 +515,7 @@ diff -ur a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreame
  }
  #endif
  
-@@ -530,11 +938,19 @@
+@@ -530,11 +944,19 @@
      m_gstGWorld = GStreamerGWorld::createGWorld(pipeline);
      m_webkitVideoSink = webkitVideoSinkNew(m_gstGWorld.get());
  #else
@@ -527,7 +539,7 @@ diff -ur a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreame
  
  #if USE(NATIVE_FULLSCREEN_VIDEO)
      // Build a new video sink consisting of a bin containing a tee
-@@ -559,7 +975,7 @@
+@@ -559,7 +981,7 @@
  #endif
  
      GstElement* actualVideoSink = 0;
@@ -536,7 +548,7 @@ diff -ur a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreame
      if (m_fpsSink) {
          // The verbose property has been added in -bad 0.10.22. Making
          // this whole code depend on it because we don't want
-@@ -597,7 +1013,6 @@
+@@ -597,7 +1019,6 @@
      }
  
      ASSERT(actualVideoSink);
