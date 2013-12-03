@@ -79,7 +79,7 @@ QT5BASE_CONFIGURE_OPTS += $(if $(BR2_PACKAGE_QT5BASE_GUI),-gui,-no-gui)
 QT5BASE_CONFIGURE_OPTS += $(if $(BR2_PACKAGE_QT5BASE_WIDGETS),-widgets,-no-widgets)
 QT5BASE_CONFIGURE_OPTS += $(if $(BR2_PACKAGE_QT5BASE_LINUXFB),--enable-linuxfb,-no-linuxfb)
 ifeq ($(BR2_PACKAGE_DAWN_SDK),y)
-QT5BASE_CONFIGURE_OPTS += -directfb
+QT5BASE_CONFIGURE_OPTS += -directfb -opengl es2
 else
 QT5BASE_CONFIGURE_OPTS += $(if $(BR2_PACKAGE_QT5BASE_DIRECTFB),-directfb,-no-directfb)
 endif
@@ -95,6 +95,36 @@ QT5BASE_DEPENDENCIES   += \
 	xlib_libX11
 else
 QT5BASE_CONFIGURE_OPTS += -no-xcb
+endif
+
+ifeq ($(BR2_PACKAGE_DAWN_SDK),y)
+QT5BASE_CONFIGURE_OPTS += \
+	-no-linuxfb \
+	-no-eglfs \
+	-no-neon \
+	-no-xinerama \
+	-no-xshape \
+	-no-xvideo \
+	-no-xsync \
+	-no-xinput2 \
+	-no-xinput \
+	-no-xcursor \
+	-no-xfixes \
+	-no-xrandr \
+	-no-xrender
+TARGET_CFLAGS          += -D__FORCE_NOGLIBC -D__GLIBC__=2
+TARGET_CXXFLAGS        += -D__FORCE_NOGLIBC -D__GLIBC__=2
+QT5BASE_DEPENDENCIES   += dawn-sdk
+QT5BASE_DEPENDENCIES   += $(if $(BR2_PACKAGE_OPENSSL),ca-certificates)
+QT5BASE_EGL_LIBS        = -lrt
+QT5BASE_OPENGL_ES2_LIBS = -lrt
+QT5BASE_QPA_PLATFORM    = directfbegl
+QT5BASE_EXTRA_QMAKE     = QT_CONFIG += directfb_egl egl
+QT5BASE_EGLFS_PLATFORM_HOOKS_SOURCES = \
+	$(@D)/mkspecs/devices/linux-mipsel-broadcom-97425-g++/qdirectfbeglhooks_bcm97425.cpp
+else
+QT5BASE_QPA_PLATFORM    = eglfs
+QT5BASE_EXTRA_QMAKE     = 
 endif
 
 ifeq ($(BR2_PACKAGE_QT5BASE_EGLFS),y)
@@ -120,30 +150,7 @@ QT5BASE_OPENGL_ES2_LIBS = -lEGL -lGLESv2
 QT5BASE_EGLFS_PLATFORM_HOOKS_SOURCES = \
 	$(@D)/mkspecs/devices/linux-rasp-pi-g++/qeglfshooks_pi.cpp
 else
-ifeq ($(BR2_PACKAGE_DAWN_SDK),y)
-QT5BASE_CONFIGURE_OPTS += \
-	-no-neon \
-	-no-xinerama \
-	-no-xshape \
-	-no-xvideo \
-	-no-xsync \
-	-no-xinput2 \
-	-no-xinput \
-	-no-xcursor \
-	-no-xfixes \
-	-no-xrandr \
-	-no-xrender
-TARGET_CFLAGS          += -D__FORCE_NOGLIBC
-TARGET_CXXFLAGS        += -D__FORCE_NOGLIBC
-QT5BASE_DEPENDENCIES   += dawn-sdk
-QT5BASE_DEPENDENCIES   += $(if $(BR2_PACKAGE_OPENSSL),ca-certificates)
-QT5BASE_EGL_LIBS        = -lrt
-QT5BASE_OPENGL_ES2_LIBS = -lrt
-QT5BASE_EGLFS_PLATFORM_HOOKS_SOURCES = \
-	$(@D)/mkspecs/devices/linux-mipsel-broadcom-97425-g++/qdirectfbeglhooks_bcm97425.cpp
-else
 QT5BASE_DEPENDENCIES   += libgles libegl
-endif
 endif
 else
 QT5BASE_CONFIGURE_OPTS += -no-opengl -no-eglfs
@@ -199,6 +206,7 @@ define QT5BASE_CONFIG_COMMON_SET
 endef
 
 define QT5BASE_CONFIGURE_CMDS
+	$(call QT5BASE_CONFIG_SET,QT_QPA_DEFAULT_PLATFORM,$(QT5BASE_QPA_PLATFORM))
 	$(call QT5BASE_CONFIG_SET,BUILDROOT_CROSS_COMPILE,$(TARGET_CROSS))
 	$(call QT5BASE_CONFIG_SET,BUILDROOT_COMPILER_CFLAGS,$(TARGET_CFLAGS))
 	$(call QT5BASE_CONFIG_SET,BUILDROOT_COMPILER_CXXFLAGS,$(TARGET_CXXFLAGS))
@@ -208,6 +216,7 @@ define QT5BASE_CONFIGURE_CMDS
 	$(call QT5BASE_CONFIG_COMMON_SET,QMAKE_LIBS_EGL,$(QT5BASE_EGL_LIBS))
 	$(call QT5BASE_CONFIG_COMMON_SET,QMAKE_LIBS_OPENGL_ES2,$(QT5BASE_OPENGL_ES2_LIBS))
 	$(call QT5BASE_CONFIG_COMMON_SET,QMAKE_WAYLAND_SCANNER,$(HOST_DIR)/usr/bin/wayland-scanner)
+	$(SED) '1i$(QT5BASE_EXTRA_QMAKE)' $(@D)/mkspecs/devices/linux-buildroot-g++/qmake.conf
 	(cd $(@D); \
 		PKG_CONFIG="$(PKG_CONFIG_HOST_BINARY)" \
 		PKG_CONFIG_LIBDIR="$(STAGING_DIR)/usr/lib/pkgconfig" \
