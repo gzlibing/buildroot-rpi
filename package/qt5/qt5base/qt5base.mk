@@ -112,8 +112,6 @@ QT5BASE_CONFIGURE_OPTS += \
 	-no-xfixes \
 	-no-xrandr \
 	-no-xrender
-TARGET_CFLAGS          += -D__FORCE_NOGLIBC
-TARGET_CXXFLAGS        += -D__FORCE_NOGLIBC
 QT5BASE_DEPENDENCIES   += dawn-sdk
 QT5BASE_DEPENDENCIES   += $(if $(BR2_PACKAGE_OPENSSL),ca-certificates)
 QT5BASE_EGL_LIBS        = -lrt
