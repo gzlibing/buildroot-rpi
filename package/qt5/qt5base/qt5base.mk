@@ -119,13 +119,13 @@ QT5BASE_DEPENDENCIES   += $(if $(BR2_PACKAGE_OPENSSL),ca-certificates)
 QT5BASE_EGL_LIBS        = -lrt
 QT5BASE_OPENGL_ES2_LIBS = -lrt
 QT5BASE_QPA_PLATFORM    = directfbegl
-QT5BASE_EXTRA_QMAKE     = QT_CONFIG += directfb_egl
+QT5BASE_EXTRA_QT_CONFIG = directfb_egl
 QT5BASE_PLATFORM_HOOKS  =DIRECTFB_PLATFORM_HOOKS_SOURCES
 QT5BASE_PLATFORM_HOOKS_SOURCES = \
 	$(@D)/mkspecs/devices/linux-mipsel-broadcom-97425-g++/qdirectfbeglhooks_bcm97425.cpp
 else
 QT5BASE_QPA_PLATFORM    = eglfs
-QT5BASE_EXTRA_QMAKE     = 
+QT5BASE_EXTRA_QT_CONFIG = 
 endif
 
 ifeq ($(BR2_PACKAGE_QT5BASE_EGLFS),y)
@@ -222,7 +222,7 @@ define QT5BASE_CONFIGURE_CMDS
 	$(call QT5BASE_CONFIG_COMMON_SET,QMAKE_LIBS_EGL,$(QT5BASE_EGL_LIBS))
 	$(call QT5BASE_CONFIG_COMMON_SET,QMAKE_LIBS_OPENGL_ES2,$(QT5BASE_OPENGL_ES2_LIBS))
 	$(call QT5BASE_CONFIG_COMMON_SET,QMAKE_WAYLAND_SCANNER,$(HOST_DIR)/usr/bin/wayland-scanner)
-	$(SED) '1i$(QT5BASE_EXTRA_QMAKE)' $(@D)/mkspecs/devices/linux-buildroot-g++/qmake.conf
+	$(SED) '1i$QT_CONFIG += (QT5BASE_EXTRA_QT_CONFIG)' $(@D)/mkspecs/devices/linux-buildroot-g++/qmake.conf
 	echo "#undef QT_SOCKLEN_T" >> $(@D)/mkspecs/devices/linux-buildroot-g++/qplatformdefs.h
 	echo "#define QT_SOCKLEN_T socklen_t" >> $(@D)/mkspecs/devices/linux-buildroot-g++/qplatformdefs.h
 	(cd $(@D); \
