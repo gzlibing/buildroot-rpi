@@ -1,0 +1,28 @@
+--- a/src/network/kernel/qdnslookup_unix.cpp
++++ b/src/network/kernel/qdnslookup_unix.cpp
+@@ -53,7 +53,10 @@
+ #include <resolv.h>
+ 
+ #ifdef __GNU_LIBRARY__
++#ifndef __UCLIBC__
+ #  include <gnu/lib-names.h>
++#else
++#endif
+ #endif
+ 
+ QT_BEGIN_NAMESPACE
+
+--- a/src/network/kernel/qhostinfo_unix.cpp
++++ b/src/network/kernel/qhostinfo_unix.cpp
+@@ -64,7 +64,10 @@
+ #endif
+ 
+ #ifdef __GNU_LIBRARY__
++#ifndef __UCLIBC__
+ #  include <gnu/lib-names.h>
++#else
++#endif
+ #endif
+ 
+ #if defined (QT_NO_GETADDRINFO)
+
