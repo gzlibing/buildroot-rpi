@@ -112,15 +112,16 @@ QT5BASE_CONFIGURE_OPTS += \
 	-no-xfixes \
 	-no-xrandr \
 	-no-xrender
-TARGET_CFLAGS          += -D__FORCE_NOGLIBC -D__GLIBC__=2
-TARGET_CXXFLAGS        += -D__FORCE_NOGLIBC -D__GLIBC__=2
+TARGET_CFLAGS          += -D__FORCE_NOGLIBC
+TARGET_CXXFLAGS        += -D__FORCE_NOGLIBC
 QT5BASE_DEPENDENCIES   += dawn-sdk
 QT5BASE_DEPENDENCIES   += $(if $(BR2_PACKAGE_OPENSSL),ca-certificates)
 QT5BASE_EGL_LIBS        = -lrt
 QT5BASE_OPENGL_ES2_LIBS = -lrt
 QT5BASE_QPA_PLATFORM    = directfbegl
-QT5BASE_EXTRA_QMAKE     = QT_CONFIG += directfb_egl egl
-QT5BASE_EGLFS_PLATFORM_HOOKS_SOURCES = \
+QT5BASE_EXTRA_QMAKE     = QT_CONFIG += directfb_egl
+QT5BASE_PLATFORM_HOOKS  =DIRECTFB_PLATFORM_HOOKS_SOURCES
+QT5BASE_PLATFORM_HOOKS_SOURCES = \
 	$(@D)/mkspecs/devices/linux-mipsel-broadcom-97425-g++/qdirectfbeglhooks_bcm97425.cpp
 else
 QT5BASE_QPA_PLATFORM    = eglfs
@@ -147,7 +148,8 @@ QT5BASE_DEPENDENCIES   += rpi-userland
 QT5BASE_DEPENDENCIES   += $(if $(BR2_PACKAGE_OPENSSL),ca-certificates)
 QT5BASE_EGL_LIBS        = -lEGL
 QT5BASE_OPENGL_ES2_LIBS = -lEGL -lGLESv2
-QT5BASE_EGLFS_PLATFORM_HOOKS_SOURCES = \
+QT5BASE_PLATFORM_HOOKS  =EGLFS_PLATFORM_HOOKS_SOURCES
+QT5BASE_PLATFORM_HOOKS_SOURCES = \
 	$(@D)/mkspecs/devices/linux-rasp-pi-g++/qeglfshooks_pi.cpp
 else
 QT5BASE_DEPENDENCIES   += libgles libegl
@@ -201,6 +203,10 @@ define QT5BASE_CONFIG_SET
 	$(SED) 's%^$(1).*%$(1) = $(2)%g' $(@D)/mkspecs/devices/linux-buildroot-g++/qmake.conf
 endef
 
+define QT5BASE_CONFIG_REPLACE
+	$(SED) 's%^$(1).*%$(2) = %g' $(@D)/mkspecs/devices/linux-buildroot-g++/qmake.conf
+endef
+
 define QT5BASE_CONFIG_COMMON_SET
 	$(SED) 's%^$(1).*%$(1) = $(2)%g' $(@D)/mkspecs/common/linux.conf
 endef
@@ -211,12 +217,14 @@ define QT5BASE_CONFIGURE_CMDS
 	$(call QT5BASE_CONFIG_SET,BUILDROOT_COMPILER_CFLAGS,$(TARGET_CFLAGS))
 	$(call QT5BASE_CONFIG_SET,BUILDROOT_COMPILER_CXXFLAGS,$(TARGET_CXXFLAGS))
 	$(call QT5BASE_CONFIG_SET,BUILDROOT_INCLUDE_PATH,$(STAGING_DIR)/usr/include)
-	$(call QT5BASE_CONFIG_SET,EGLFS_PLATFORM_HOOKS_SOURCES, \
-		$(QT5BASE_EGLFS_PLATFORM_HOOKS_SOURCES))
+	$(call QT5BASE_CONFIG_REPLACE,EGLFS_PLATFORM_HOOKS_SOURCES,$(QT5BASE_PLATFORM_HOOKS))
+	$(call QT5BASE_CONFIG_SET,$(QT5BASE_PLATFORM_HOOKS),$(QT5BASE_PLATFORM_HOOKS_SOURCES))
 	$(call QT5BASE_CONFIG_COMMON_SET,QMAKE_LIBS_EGL,$(QT5BASE_EGL_LIBS))
 	$(call QT5BASE_CONFIG_COMMON_SET,QMAKE_LIBS_OPENGL_ES2,$(QT5BASE_OPENGL_ES2_LIBS))
 	$(call QT5BASE_CONFIG_COMMON_SET,QMAKE_WAYLAND_SCANNER,$(HOST_DIR)/usr/bin/wayland-scanner)
 	$(SED) '1i$(QT5BASE_EXTRA_QMAKE)' $(@D)/mkspecs/devices/linux-buildroot-g++/qmake.conf
+	echo "#undef QT_SOCKLEN_T" >> $(@D)/mkspecs/devices/linux-buildroot-g++/qplatformdefs.h
+	echo "#define QT_SOCKLEN_T socklen_t" >> $(@D)/mkspecs/devices/linux-buildroot-g++/qplatformdefs.h
 	(cd $(@D); \
 		PKG_CONFIG="$(PKG_CONFIG_HOST_BINARY)" \
 		PKG_CONFIG_LIBDIR="$(STAGING_DIR)/usr/lib/pkgconfig" \
