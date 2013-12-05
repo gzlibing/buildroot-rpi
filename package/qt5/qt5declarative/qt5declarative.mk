@@ -27,13 +27,12 @@ endef
 
 define QT5DECLARATIVE_BUILD_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) \
-		sub-src-all sub-tools-all
+		sub-src-all
 endef
 
 define QT5DECLARATIVE_INSTALL_STAGING_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) \
-		sub-src-install_subtargets \
-		sub-tools-install_subtargets
+		sub-src-install_subtargets
 	$(QT5_LA_PRL_FILES_FIXUP)
 endef
 
@@ -46,7 +45,7 @@ endef
 endif
 
 define QT5DECLARATIVE_INSTALL_TARGET_CMDS
-	cp -dpf $(STAGING_DIR)/usr/bin/qml* $(TARGET_DIR)/usr/bin
+#	cp -dpf $(STAGING_DIR)/usr/bin/qml* $(TARGET_DIR)/usr/bin
 	cp -dpfr $(STAGING_DIR)/usr/qml $(TARGET_DIR)/usr
 	$(QT5DECLARATIVE_INSTALL_TARGET_LIBS)
 endef
