@@ -94,7 +94,7 @@ else
 QT5BASE_CONFIGURE_OPTS += -no-xcb
 endif
 
-ifeq ($(BR2_PACKAGE_QT5BASE_DAWN_SDK),y)
+ifeq ($(BR2_PACKAGE_DAWN_SDK),y)
 QT5BASE_CONFIGURE_OPTS += \
 	-no-linuxfb \
 	-no-neon \
