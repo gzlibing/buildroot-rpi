@@ -60,8 +60,7 @@ config BR2_PACKAGE_QT5BASE_GUI
 	select BR2_PACKAGE_QT5BASE_LINUXFB if \
 	       !BR2_PACKAGE_QT5BASE_DIRECTFB && \
 	       !BR2_PACKAGE_QT5BASE_XCB && \
-	       !BR2_PACKAGE_QT5BASE_EGLFS && \
-               !BR2_PACKAGE_QT5BASE_DAWN_SDK
+	       !BR2_PACKAGE_QT5BASE_EGLFS
 	help
 	  This option enables the Qt5Gui library.
 
@@ -71,11 +70,6 @@ config BR2_PACKAGE_QT5BASE_WIDGETS
 	bool "widgets module"
 	help
 	  This option enables the Qt5Widgets library.
-
-config BR2_PACKAGE_QT5BASE_DAWN_SDK
-       bool "enable dawn sdk"
-       help
-          Enable dawn sdk based build
 
 config BR2_PACKAGE_QT5BASE_LINUXFB
 	bool "linuxfb support"
