@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Buildroot 2013.05-g87a5fbe Configuration
+# Buildroot 2013.05-g9c3dac5 Configuration
 #
 BR2_HAVE_DOT_CONFIG=y
 # BR2_arcle is not set
@@ -711,7 +711,8 @@ BR2_PACKAGE_HAS_OPENVG=y
 # BR2_PACKAGE_GLIB_NETWORKING is not set
 # BR2_PACKAGE_LIBCGI is not set
 # BR2_PACKAGE_LIBCGICC is not set
-# BR2_PACKAGE_LIBCURL is not set
+BR2_PACKAGE_LIBCURL=y
+BR2_PACKAGE_CURL=y
 # BR2_PACKAGE_LIBDNET is not set
 # BR2_PACKAGE_LIBESMTP is not set
 # BR2_PACKAGE_LIBEXOSIP2 is not set
