@@ -27,6 +27,8 @@ define DAWN_SDK_INSTALL_TARGET_CMDS
 	cp -Rf $(@D)/init/inittab $(TARGET_DIR)/etc
 	rm -rf $(TARGET_DIR)/etc/init.d/
 	cp -Rf $(@D)/init/init.d $(TARGET_DIR)/etc
+	cp -Rf $(@D)/pmw $(TARGET_DIR)/
+	cp -Rf $(@D)/bin/* $(TARGET_DIR)/usr/bin
 endef
 
 $(eval $(generic-package))
