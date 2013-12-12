@@ -94,7 +94,7 @@ else
 QT5BASE_CONFIGURE_OPTS += -no-xcb
 endif
 
-ifeq ($(BR2_PACKAGE_QT5BASE_DAWN_SDK),y)
+ifeq ($(BR2_PACKAGE_DAWN_SDK),y)
 QT5BASE_CONFIGURE_OPTS += \
 	-no-linuxfb \
 	-no-neon \
@@ -113,6 +113,9 @@ QT5BASE_DEPENDENCIES   += $(if $(BR2_PACKAGE_OPENSSL),ca-certificates)
 QT5BASE_EGL_LIBS        = -lrt
 QT5BASE_OPENGL_ES2_LIBS = -lrt
 QT5BASE_QPA_PLATFORM    = eglfs
+QT5BASE_PLATFORM_HOOKS  =EGLFS_PLATFORM_HOOKS_SOURCES
+QT5BASE_PLATFORM_HOOKS_SOURCES = \
+	$(@D)/mkspecs/devices/linux-mipsel-broadcom-97425-g++/qeglfshooks_bcm.cpp
 else
 QT5BASE_QPA_PLATFORM    = eglfs
 QT5BASE_EXTRA_QT_CONFIG = 
@@ -201,38 +204,6 @@ define QT5BASE_CONFIG_COMMON_SET
 	$(SED) 's%^$(1).*%$(1) = $(2)%g' $(@D)/mkspecs/common/linux.conf
 endef
 
-ifeq ($(BR2_PACKAGE_QT5BASE_DAWN_SDK),y)
-define QT5BASE_CONFIGURE_CMDS
-	$(call QT5BASE_CONFIG_SET,QT_QPA_DEFAULT_PLATFORM,$(QT5BASE_QPA_PLATFORM))
-	$(call QT5BASE_CONFIG_SET,BUILDROOT_CROSS_COMPILE,$(TARGET_CROSS))
-	$(call QT5BASE_CONFIG_SET,BUILDROOT_COMPILER_CFLAGS,$(TARGET_CFLAGS))
-	$(call QT5BASE_CONFIG_SET,BUILDROOT_COMPILER_CXXFLAGS,$(TARGET_CXXFLAGS))
-	$(call QT5BASE_CONFIG_SET,BUILDROOT_INCLUDE_PATH,$(STAGING_DIR)/usr/include)
-	$(call QT5BASE_CONFIG_COMMON_SET,QMAKE_LIBS_EGL,$(QT5BASE_EGL_LIBS))
-	$(call QT5BASE_CONFIG_COMMON_SET,QMAKE_LIBS_OPENGL_ES2,$(QT5BASE_OPENGL_ES2_LIBS))
-	$(call QT5BASE_CONFIG_COMMON_SET,QMAKE_WAYLAND_SCANNER,$(HOST_DIR)/usr/bin/wayland-scanner)
-	$(SED) '1i$QT_CONFIG += (QT5BASE_EXTRA_QT_CONFIG)' $(@D)/mkspecs/devices/linux-buildroot-g++/qmake.conf
-	echo "#undef QT_SOCKLEN_T" >> $(@D)/mkspecs/devices/linux-buildroot-g++/qplatformdefs.h
-	echo "#define QT_SOCKLEN_T socklen_t" >> $(@D)/mkspecs/devices/linux-buildroot-g++/qplatformdefs.h
-	(cd $(@D); \
-		PKG_CONFIG="$(PKG_CONFIG_HOST_BINARY)" \
-		PKG_CONFIG_LIBDIR="$(STAGING_DIR)/usr/lib/pkgconfig" \
-		PKG_CONFIG_SYSROOT_DIR="$(STAGING_DIR)" \
-		MAKEFLAGS="$(MAKEFLAGS) -j$(PARALLEL_JOBS)" \
-		./configure \
-		-v \
-		-prefix /usr \
-		-hostprefix $(HOST_DIR)/usr \
-		-sysroot $(STAGING_DIR) \
-		-plugindir /usr/lib/qt/plugins \
-		-no-rpath \
-		-nomake examples -nomake tests \
-		-device buildroot \
-		-no-c++11 \
-		$(QT5BASE_CONFIGURE_OPTS) \
-	)
-endef
-else
 define QT5BASE_CONFIGURE_CMDS
 	$(call QT5BASE_CONFIG_SET,QT_QPA_DEFAULT_PLATFORM,$(QT5BASE_QPA_PLATFORM))
 	$(call QT5BASE_CONFIG_SET,BUILDROOT_CROSS_COMPILE,$(TARGET_CROSS))
@@ -265,7 +236,6 @@ define QT5BASE_CONFIGURE_CMDS
 		$(QT5BASE_CONFIGURE_OPTS) \
 	)
 endef
-endif
 
 define QT5BASE_BUILD_CMDS
 	$(MAKE) -C $(@D)

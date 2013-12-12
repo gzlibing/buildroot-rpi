@@ -1,0 +1,32 @@
+diff -Naur qt5webkit-5.2.0-rc1/Tools/MiniBrowser/qt/MiniBrowserApplication.cpp qt5webkit-patched/Tools/MiniBrowser/qt/MiniBrowserApplication.cpp
+--- qt5webkit-5.2.0-rc1/Tools/MiniBrowser/qt/MiniBrowserApplication.cpp	2013-11-27 02:01:19.000000000 +0100
++++ qt5webkit-patched/Tools/MiniBrowser/qt/MiniBrowserApplication.cpp	2013-12-11 12:18:34.563996018 +0100
+@@ -347,10 +347,10 @@
+             m_windowOptions.setRequestedWindowSize(QSize(list.at(0).toInt(), list.at(1).toInt()));
+     }
+ 
+-#if HAVE(QTTESTSUPPORT)
+-    if (takeOptionFlag(&args, QStringLiteral("--use-test-fonts")))
+-        WebKit::QtTestSupport::initializeTestFonts();
+-#endif
++// #if HAVE(QTTESTSUPPORT)
++//     if (takeOptionFlag(&args, QStringLiteral("--use-test-fonts")))
++//         WebKit::QtTestSupport::initializeTestFonts();
++// #endif
+ 
+     if (args.contains("-r")) {
+         QString listFile = takeOptionValue(&args, "-r");
+diff -Naur qt5webkit-5.2.0-rc1/Tools/QtTestBrowser/qttestbrowser.cpp qt5webkit-patched/Tools/QtTestBrowser/qttestbrowser.cpp
+--- qt5webkit-5.2.0-rc1/Tools/QtTestBrowser/qttestbrowser.cpp	2013-11-27 02:01:20.000000000 +0100
++++ qt5webkit-patched/Tools/QtTestBrowser/qttestbrowser.cpp	2013-12-11 12:19:09.508224538 +0100
+@@ -241,8 +241,8 @@
+     }
+ #endif
+ 
+-    if (args.contains("-use-test-fonts"))
+-        WebKit::QtTestSupport::initializeTestFonts();
++    // if (args.contains("-use-test-fonts"))
++    //     WebKit::QtTestSupport::initializeTestFonts();
+ 
+     if (args.contains("-print-loaded-urls"))
+         windowOptions.printLoadedUrls = true;

@@ -23,6 +23,9 @@ menu "Extra options"
 config BR2_PACKAGE_MINIBROWSER
 	bool "minibrowser"
 
+config BR2_PACKAGE_TESTBROWSER
+	bool "testbrowser"
+
 config BR2_PACKAGE_DUMPRENDERTREE
 	bool "dumprendertree"
 
