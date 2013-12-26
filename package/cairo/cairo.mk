@@ -55,6 +55,7 @@ endif
 
 ifeq ($(BR2_PACKAGE_RPI_USERLAND),y)
 	CAIRO_CONF_OPT += \
+		--enable-ft \
 		--enable-egl \
 		--enable-glesv2
 	CAIRO_DEPENDENCIES += rpi-userland
