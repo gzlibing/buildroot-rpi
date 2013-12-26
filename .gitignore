@@ -5,6 +5,8 @@
 /.config.old
 /..config.tmp
 /.config
+credentials
+dxdrm.config
 *.depend
 *.DS_Store
 *.o
