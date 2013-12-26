@@ -1,0 +1,12 @@
+Index: cairo/configure.ac
+===================================================================
+--- cairo.orig/configure.ac	2012-10-08 10:21:17.000000000 +0200
++++ cairo/configure.ac	2012-10-08 10:21:42.008974290 +0200
+@@ -12,6 +12,7 @@
+ AC_CONFIG_HEADERS(config.h)
+ 
+ AM_INIT_AUTOMAKE([1.11 foreign -Wall no-define no-dist-gzip dist-xz])
++AM_MAINTAINER_MODE
+ AM_SILENT_RULES([yes])
+ 
+ # Initialize libtool
