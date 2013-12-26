@@ -5,7 +5,7 @@
 #
 #############################################################
 
-WAYLAND_VERSION = 1.3.0
+WAYLAND_VERSION = 1.3.91
 WAYLAND_SITE = http://wayland.freedesktop.org/releases/
 WAYLAND_SOURCE = wayland-$(WAYLAND_VERSION).tar.xz
 WAYLAND_AUTORECONF = YES
@@ -30,7 +30,9 @@ define WAYLAND_BUILD_SCANNER
 		$(HOSTCC) $(HOST_CFLAGS) $(HOST_LDFLAGS) \
 			-o wayland-scanner scanner.c wayland-util.c -lexpat; \
 	 	$(INSTALL) -m 0755 -D wayland-scanner \
-			$(HOST_DIR)/usr/bin/wayland-scanner)
+			$(HOST_DIR)/usr/bin/wayland-scanner; \
+	 	$(INSTALL) -m 0755 -D wayland-scanner.pc \
+			$(STAGING_DIR)/usr/lib/pkgconfig)
 endef
 
 WAYLAND_POST_CONFIGURE_HOOKS += WAYLAND_BUILD_SCANNER
