@@ -41,6 +41,7 @@ ifeq ($(BR2_TOOLCHAIN_HAS_THREADS),)
 endif
 
 CAIRO_CONF_OPT = \
+	--enable-ft \
 	--enable-trace=no \
 	--enable-interpreter=no
 
@@ -53,11 +54,15 @@ else
 	CAIRO_CONF_OPT += --disable-directfb
 endif
 
+ifeq ($(BR2_PACKAGE_HAS_OPENGL_EGL),y)
+	CAIRO_CONF_OPT += --enable-egl
+endif
+
+ifeq ($(BR2_PACKAGE_HAS_OPENGL_ES),y)
+	CAIRO_CONF_OPT += --enable-glesv2
+endif
+
 ifeq ($(BR2_PACKAGE_RPI_USERLAND),y)
-	CAIRO_CONF_OPT += \
-		--enable-ft \
-		--enable-egl \
-		--enable-glesv2
 	CAIRO_DEPENDENCIES += rpi-userland
 endif
 
