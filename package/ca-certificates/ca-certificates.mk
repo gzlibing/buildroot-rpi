@@ -13,6 +13,9 @@ define CA_CERTIFICATES_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)/etc/ssl/certs
 	mkdir -p $(TARGET_DIR)/etc/ssl/CA/private
 	cp $(@D)/ca-bundle.crt $(TARGET_DIR)/etc/ssl/certs/
+	(cd $(TARGET_DIR)/etc/ssl/certs; \
+		ln -sf ca-bundle.crt ca-certificates.crt; \
+	)
 	(cd $(TARGET_DIR)/etc/ssl; \
 		ln -sf certs/ca-bundle.crt cert.pem; \
 	)
