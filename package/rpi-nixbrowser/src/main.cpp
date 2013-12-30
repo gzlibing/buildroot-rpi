@@ -4,11 +4,15 @@
 #include <cassert>
 
 #include <WebKit2/WKContext.h>
+#include <WebKit2/WKNumber.h>
 #include <WebKit2/WKPage.h>
+#include <WebKit2/WKPageGroup.h>
 #include <WebKit2/WKString.h>
 #include <WebKit2/WKType.h>
 #include <WebKit2/WKURL.h>
 #include <WebKit2/WKView.h>
+#include <WebKit2/WKPreferences.h>
+#include <WebKit2/WKPreferencesPrivate.h>
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -136,7 +140,8 @@ static void viewNeedsDisplay(WKViewRef webView, WKRect, const void*)
     if(scheduleUpdate)
         return;
     scheduleUpdate = true;
-    g_timeout_add(0, scheduledDisplayUpdate, (gpointer)webView);
+    // 40 fps
+    g_timeout_add(25, scheduledDisplayUpdate, (gpointer)webView);
 }
 
 static void didReceiveTitleForFrame(WKPageRef page, WKStringRef title, WKFrameRef, WKTypeRef, const void*)
@@ -160,6 +165,10 @@ int main(int argc, char* argv[])
     WKContextRef context = WKContextCreate();
     WKViewRef webView = WKViewCreate(context, NULL);
     WKPageRef page = WKViewGetPage(webView);
+
+    WKPreferencesRef webPreferences = WKPageGroupGetPreferences(WKPageGetPageGroup(page));
+    WKPreferencesSetWebGLEnabled(webPreferences, true);
+    WKPreferencesSetDeveloperExtrasEnabled(webPreferences, true);
 
     WKViewClientV0 viewClient;
     memset(&viewClient, 0, sizeof(WKViewClientV0));
