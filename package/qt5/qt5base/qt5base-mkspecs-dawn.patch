@@ -133,8 +133,8 @@
      SOURCES += $$EGLFS_PLATFORM_HOOKS_SOURCES
      LIBS    += $$EGLFS_PLATFORM_HOOKS_LIBS
      DEFINES += EGLFS_PLATFORM_HOOKS
-+    contains(DEFINES, NEXUS_SERVER_SUPPORT) { 
-+        LIBS += b_ipc 
++    contains(DEFINES, NEXUS_SERVER_SUPPORT=1) { 
++        LIBS += -lb_ipc 
 +    }
  }
  
