@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-WEBKITNIX_VERSION = acb1e2167def0f485540487fd44aad41dbc24b67
+WEBKITNIX_VERSION = 0aab982a3d78662a96b8c1d97ca473465fdc90d6
 WEBKITNIX_SITE = http://github.com/WebKitNix/webkitnix/tarball/master
 WEBKITNIX_INSTALL_STAGING = YES
 WEBKITNIX_DEPENDENCIES = host-pkgconf host-ruby host-flex host-bison host-gperf harfbuzz \
@@ -14,6 +14,7 @@ WEBKITNIX_CONF_OPT += \
 	-DPORT=Nix \
 	-DWTF_USE_OPENGL_ES_2=ON \
 	-DWTF_USE_CURL=OFF \
+	-DENABLE_ACCELERATED_2D_CANVAS=ON \
 	-DENABLE_BATTERY_STATUS=OFF \
 	-DENABLE_VIBRATION=OFF \
 	-DENABLE_DRAG_SUPPORT=OFF \
@@ -26,8 +27,8 @@ WEBKITNIX_CONF_OPT += \
 
 ifeq ($(BR2_PACKAGE_RPI_USERLAND),y)
 WEBKITNIX_CONF_OPT += \
-	-DCMAKE_C_FLAGS="-I$(STAGING_DIR)/usr/include/interface/vcos/pthreads -I$(STAGING_DIR)/usr/include/interface/vmcs_host/linux -DNDEBUG" \
-	-DCMAKE_CXX_FLAGS="-I$(STAGING_DIR)/usr/include/interface/vcos/pthreads -I$(STAGING_DIR)/usr/include/interface/vmcs_host/linux -DNDEBUG"
+	-DCMAKE_C_FLAGS="-I$(STAGING_DIR)/usr/include/interface/vcos/pthreads -I$(STAGING_DIR)/usr/include/interface/vmcs_host/linux -DNDEBUG -DWTF_USE_VIDEOCORE_IV -D_GLIBCXX_USE_SCHED_YIELD -D_GLIBCXX_USE_NANOSLEEP" \
+	-DCMAKE_CXX_FLAGS="-I$(STAGING_DIR)/usr/include/interface/vcos/pthreads -I$(STAGING_DIR)/usr/include/interface/vmcs_host/linux -DNDEBUG -DWTF_USE_VIDEOCORE_IV -D_GLIBCXX_USE_SCHED_YIELD -D_GLIBCXX_USE_NANOSLEEP"
 endif
 
 #WEBKITNIX_MAKE_ENV += \
