@@ -4,7 +4,7 @@
 #
 #############################################################
 
-RPI_FIRMWARE_VERSION = a62796faed221155fe1dc6f247add8922445b004
+RPI_FIRMWARE_VERSION = f46e6d9cb9a6bf419fe2a428a8a586239e93aa2d
 RPI_FIRMWARE_SITE = http://github.com/raspberrypi/firmware/tarball/master
 RPI_FIRMWARE_LICENSE = BSD-3c
 RPI_FIRMWARE_LICENSE_FILES = boot/LICENCE.broadcom

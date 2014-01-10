@@ -4,7 +4,7 @@
 #
 #############################################################
 
-RPI_USERLAND_VERSION = aee3ec867b363b4b2349e38e6559f7aaa5bd6331
+RPI_USERLAND_VERSION = 350dfd09b0b1f0b8fe0bd52192fecdd25f64993c
 RPI_USERLAND_SITE = http://github.com/raspberrypi/userland/tarball/master
 RPI_USERLAND_LICENSE = BSD-3c
 RPI_USERLAND_LICENSE_FILES = LICENCE
