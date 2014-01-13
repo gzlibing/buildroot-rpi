@@ -29,6 +29,10 @@ define DAWN_SDK_INSTALL_TARGET_CMDS
 	cp -Rf $(@D)/init/init.d $(TARGET_DIR)/etc
 	cp -Rf $(@D)/pmw $(TARGET_DIR)/
 	cp -Rf $(@D)/bin/* $(TARGET_DIR)/usr/bin
+	# mknod -m 666 $(TARGET_DIR)/dev/null c 1 3
+	# mknod -m 666 $(TARGET_DIR)/dev/ttyS0 c 4 64
+	# mknod -m 444 $(TARGET_DIR)/dev/random c 1 8
+	# mknod -m 444 $(TARGET_DIR)/dev/urandom c 1 9
 endef
 
 $(eval $(generic-package))
