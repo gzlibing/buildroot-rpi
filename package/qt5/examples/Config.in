@@ -1,0 +1,5 @@
+config BR2_PACKAGE_EXAMPLES
+	bool "examples"
+	help
+	  Metrological's (accelerated) examples
+	  http://www.metrological.com
