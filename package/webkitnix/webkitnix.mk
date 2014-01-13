@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-WEBKITNIX_VERSION = 0aab982a3d78662a96b8c1d97ca473465fdc90d6
+WEBKITNIX_VERSION = 88929e33f3853507764eacf23675b9da5fc33de9
 WEBKITNIX_SITE = http://github.com/WebKitNix/webkitnix/tarball/master
 WEBKITNIX_INSTALL_STAGING = YES
 WEBKITNIX_DEPENDENCIES = host-pkgconf host-ruby host-flex host-bison host-gperf harfbuzz \
