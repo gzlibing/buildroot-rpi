@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-WEBKITNIX_VERSION = 88929e33f3853507764eacf23675b9da5fc33de9
+WEBKITNIX_VERSION = 5e295afed5eb08ee7f313fa9233cff2b18d6f1de
 WEBKITNIX_SITE = http://github.com/WebKitNix/webkitnix/tarball/master
 WEBKITNIX_INSTALL_STAGING = YES
 WEBKITNIX_DEPENDENCIES = host-pkgconf host-ruby host-flex host-bison host-gperf harfbuzz \
@@ -14,7 +14,6 @@ WEBKITNIX_CONF_OPT += \
 	-DPORT=Nix \
 	-DWTF_USE_OPENGL_ES_2=ON \
 	-DWTF_USE_CURL=OFF \
-	-DENABLE_ACCELERATED_2D_CANVAS=ON \
 	-DENABLE_BATTERY_STATUS=OFF \
 	-DENABLE_VIBRATION=OFF \
 	-DENABLE_DRAG_SUPPORT=OFF \
