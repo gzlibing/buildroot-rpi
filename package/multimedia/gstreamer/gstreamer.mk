@@ -4,7 +4,7 @@
 # gstreamer
 #
 #############################################################
-GSTREAMER_VERSION = b278a4b833bb0d7d1811dd4aa138d46274105d1a
+GSTREAMER_VERSION = 3ddc31eaa18c3be1613e43430eca78a3e445639e
 GSTREAMER_SOURCE = gstreamer-$(GSTREAMER_VERSION).tar.gz
 GSTREAMER_SITE = http://cgit.freedesktop.org/gstreamer-sdk/gstreamer/snapshot/
 GSTREAMER_INSTALL_STAGING = YES
