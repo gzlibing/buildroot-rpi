@@ -1,0 +1,5 @@
+config BR2_PACKAGE_GLEXAMPLES
+	bool "glexamples"
+	help
+	  Metrological's (accelerated) examples
+	  http://www.metrological.com
