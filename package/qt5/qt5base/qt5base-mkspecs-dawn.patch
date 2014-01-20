@@ -127,16 +127,3 @@
  }
  
  #ifdef __cplusplus
---- a/src/plugins/platforms/eglfs/eglfs.pri
-+++ b/src/plugins/platforms/eglfs/eglfs.pri
-@@ -37,6 +37,9 @@
-     SOURCES += $$EGLFS_PLATFORM_HOOKS_SOURCES
-     LIBS    += $$EGLFS_PLATFORM_HOOKS_LIBS
-     DEFINES += EGLFS_PLATFORM_HOOKS
-+    contains(DEFINES, NEXUS_SERVER_SUPPORT=1) { 
-+        LIBS += -lb_ipc 
-+    }
- }
- 
- CONFIG += egl qpa/genericunixfontdatabase
-
