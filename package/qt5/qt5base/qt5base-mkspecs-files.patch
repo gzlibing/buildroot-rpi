@@ -38,7 +38,7 @@
 +QMAKE_LIBS             += -lrt -lpthread -ldl
 +
 +# device specific glue code
-+EGLFS_PLATFORM_HOOKS_SOURCES =
++EGLFS_PLATFORM_HOOKS_SOURCES = $${BUILDROOT_EGLFS_PLATFORM_HOOKS_SOURCES}
 +
 +# Sanity check
 +deviceSanityCheckCompiler()
