@@ -91,13 +91,8 @@ QT5BASE_DEPENDENCIES   += \
 	xcb-util-keysyms \
 	xlib_libX11
 else
-QT5BASE_CONFIGURE_OPTS += -no-xcb
-endif
-
-ifeq ($(BR2_PACKAGE_DAWN_SDK),y)
 QT5BASE_CONFIGURE_OPTS += \
-	-no-linuxfb \
-	-no-neon \
+	-no-xcb \
 	-no-xinerama \
 	-no-xshape \
 	-no-xvideo \
@@ -108,44 +103,26 @@ QT5BASE_CONFIGURE_OPTS += \
 	-no-xfixes \
 	-no-xrandr \
 	-no-xrender
-QT5BASE_DEPENDENCIES   += dawn-sdk
-QT5BASE_DEPENDENCIES   += $(if $(BR2_PACKAGE_OPENSSL),ca-certificates)
-QT5BASE_EGL_LIBS        = -lrt
-QT5BASE_OPENGL_ES2_LIBS = -lrt
-QT5BASE_QPA_PLATFORM    = eglfs
-QT5BASE_PLATFORM_HOOKS  =EGLFS_PLATFORM_HOOKS_SOURCES
-QT5BASE_PLATFORM_HOOKS_SOURCES = \
-	$(@D)/mkspecs/devices/linux-mipsel-broadcom-97425-g++/qeglfshooks_bcm.cpp
-else
-QT5BASE_QPA_PLATFORM    = eglfs
-QT5BASE_EXTRA_QT_CONFIG = 
 endif
+
+QT5BASE_DEPENDENCIES   += $(if $(BR2_PACKAGE_OPENSSL),ca-certificates)
 
 ifeq ($(BR2_PACKAGE_QT5BASE_EGLFS),y)
 QT5BASE_CONFIGURE_OPTS += -opengl es2 -eglfs
 QT5BASE_INSTALL_LIBS_y += Qt5OpenGL
+ifeq ($(BR2_PACKAGE_DAWN_SDK),y)
+QT5BASE_DEPENDENCIES   += dawn-sdk
+QT5BASE_PLATFORM_HOOKS_SOURCES = \
+	$(@D)/mkspecs/devices/linux-mipsel-broadcom-97425-g++/qeglfshooks_bcm.cpp
+else
 ifeq ($(BR2_PACKAGE_RPI_USERLAND),y)
-QT5BASE_CONFIGURE_OPTS += \
-	-no-neon \
-	-no-xinerama \
-	-no-xshape \
-	-no-xvideo \
-	-no-xsync \
-	-no-xinput2 \
-	-no-xinput \
-	-no-xcursor \
-	-no-xfixes \
-	-no-xrandr \
-	-no-xrender
 QT5BASE_DEPENDENCIES   += rpi-userland
-QT5BASE_DEPENDENCIES   += $(if $(BR2_PACKAGE_OPENSSL),ca-certificates)
-QT5BASE_EGL_LIBS        = -lEGL
-QT5BASE_OPENGL_ES2_LIBS = -lEGL -lGLESv2
-QT5BASE_PLATFORM_HOOKS  =EGLFS_PLATFORM_HOOKS_SOURCES
+QT5BASE_CONFIGURE_OPTS += -no-neon
 QT5BASE_PLATFORM_HOOKS_SOURCES = \
 	$(@D)/mkspecs/devices/linux-rasp-pi-g++/qeglfshooks_pi.cpp
 else
 QT5BASE_DEPENDENCIES   += libgles libegl
+endif
 endif
 else
 QT5BASE_CONFIGURE_OPTS += -no-opengl -no-eglfs
@@ -196,22 +173,16 @@ define QT5BASE_CONFIG_SET
 	$(SED) 's%^$(1).*%$(1) = $(2)%g' $(@D)/mkspecs/devices/linux-buildroot-g++/qmake.conf
 endef
 
-define QT5BASE_CONFIG_REPLACE
-	$(SED) 's%^$(1).*%$(2) = %g' $(@D)/mkspecs/devices/linux-buildroot-g++/qmake.conf
-endef
-
 define QT5BASE_CONFIG_COMMON_SET
 	$(SED) 's%^$(1).*%$(1) = $(2)%g' $(@D)/mkspecs/common/linux.conf
 endef
 
 define QT5BASE_CONFIGURE_CMDS
-	$(call QT5BASE_CONFIG_SET,QT_QPA_DEFAULT_PLATFORM,$(QT5BASE_QPA_PLATFORM))
 	$(call QT5BASE_CONFIG_SET,BUILDROOT_CROSS_COMPILE,$(TARGET_CROSS))
 	$(call QT5BASE_CONFIG_SET,BUILDROOT_COMPILER_CFLAGS,$(TARGET_CFLAGS))
 	$(call QT5BASE_CONFIG_SET,BUILDROOT_COMPILER_CXXFLAGS,$(TARGET_CXXFLAGS))
 	$(call QT5BASE_CONFIG_SET,BUILDROOT_INCLUDE_PATH,$(STAGING_DIR)/usr/include)
-	$(call QT5BASE_CONFIG_REPLACE,EGLFS_PLATFORM_HOOKS_SOURCES,$(QT5BASE_PLATFORM_HOOKS))
-	$(call QT5BASE_CONFIG_SET,$(QT5BASE_PLATFORM_HOOKS),$(QT5BASE_PLATFORM_HOOKS_SOURCES))
+	$(call QT5BASE_CONFIG_SET,BUILDROOT_EGLFS_PLATFORM_HOOKS_SOURCES,$(QT5BASE_PLATFORM_HOOKS_SOURCES))
 	$(call QT5BASE_CONFIG_COMMON_SET,QMAKE_LIBS_EGL,$(QT5BASE_EGL_LIBS))
 	$(call QT5BASE_CONFIG_COMMON_SET,QMAKE_LIBS_OPENGL_ES2,$(QT5BASE_OPENGL_ES2_LIBS))
 	$(call QT5BASE_CONFIG_COMMON_SET,QMAKE_WAYLAND_SCANNER,$(HOST_DIR)/usr/bin/wayland-scanner)
