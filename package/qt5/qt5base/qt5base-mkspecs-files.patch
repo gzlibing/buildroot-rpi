@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/mkspecs/devices/linux-buildroot-g++/qmake.conf
-@@ -0,0 +1,43 @@
+@@ -0,0 +1,44 @@
 +MAKEFILE_GENERATOR      = UNIX
 +CONFIG                  += incremental gdb_dwarf_index
 +QMAKE_INCREMENTAL_STYLE = sublib
@@ -17,6 +17,7 @@
 +BUILDROOT_COMPILER_CFLAGS =
 +BUILDROOT_COMPILER_CXXFLAGS =
 +BUILDROOT_INCLUDE_PATH =
++BUILDROOT_EGLFS_PLATFORM_HOOKS_SOURCES =
 +
 +# modifications to g++.conf
 +QMAKE_CC                = $${BUILDROOT_CROSS_COMPILE}gcc
