@@ -1,6 +1,6 @@
 --- a/mkspecs/devices/linux-mipsel-broadcom-97425-g++/qeglfshooks_bcm.cpp	1970-01-01 01:00:00.000000000 +0100
 +++ b/mkspecs/devices/linux-mipsel-broadcom-97425-g++/qeglfshooks_bcm.cpp	2013-12-09 17:40:07.819073614 +0100
-@@ -0,0 +1,394 @@
+@@ -0,0 +1,438 @@
 +/****************************************************************************
 +**
 +** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
@@ -58,6 +58,10 @@
 +#include "nexus_display.h"
 +#include "nexus_core_utils.h"
 +
++#if defined(NEXUS_SERVER_SUPPORT)
++#include "refsw_session_simple_client.h"
++#endif
++
 +#include "default_nexus.h"
 +
 +#define UNUSED(X) (void)X
@@ -73,18 +77,31 @@
 +static unsigned int gs_screen_wdt   = 0;
 +static unsigned int gs_screen_hgt   = 0;
 +
-+static NEXUS_DisplayHandle  gs_nexus_display = 0;
 +static void                 *gs_native_window = 0;
 +
++static NEXUS_DisplayHandle  gs_nexus_display = 0;
 +static NXPL_PlatformHandle  nxpl_handle = 0;
 +
 +bool InitPlatform(void)
 +{
-+    NEXUS_PlatformSettings        platform_settings;
 +    NEXUS_Error                   err;
++
++#if defined(NEXUS_SERVER_SUPPORT)
++
++    NEXUS_ClientAuthenticationSettings authSettings;
++
++    qWarning("Calling NEXUS_Platform_AuthenticatedJoin");
++    simple_client_init("xre", &authSettings);
++
++    err = NEXUS_Platform_AuthenticatedJoin(&authSettings);
++
++#else
++
++    NEXUS_PlatformSettings        platform_settings;
 +
 +    /* Initialise the Nexus platform */
 +    NEXUS_Platform_GetDefaultSettings(&platform_settings);
++
 +#if NEXUS_DTV_PLATFORM
 +#ifdef SIXTY_HZ
 +    platform_settings.displayModuleSettings.panel.dvoLinkMode = NEXUS_PanelOutputLinkMode_eDualChannel1;
@@ -94,6 +111,9 @@
 +    platform_settings.openFrontend = false;
 +
 +    err = NEXUS_Platform_Init(&platform_settings);
++
++#endif
++
 +    if (err)
 +    {
 +        qFatal("Err: NEXUS_Platform_Init() failed");
@@ -103,6 +123,7 @@
 +    return true;
 +}
 +
++#if !defined(NEXUS_SERVER_SUPPORT)
 +
 +NEXUS_DisplayHandle OpenDisplay(NEXUS_VideoFormat format)
 +{
@@ -248,19 +269,34 @@
 +#endif
 +}
 +
++#endif 
++
 +bool InitDisplay(void)
 +{
 +
 +    NXPL_NativeWindowInfo   win_info;
++
++#if !defined(NEXUS_SERVER_SUPPORT)
 +    NEXUS_GraphicsSettings  graphics_settings;
 +    NEXUS_DisplaySettings   disp_settings;
 +    NEXUS_VideoFormatInfo   video_format_info;
++#endif
 +
 +    if (InitPlatform() == false)
 +    {
 +        qFatal("Err: InitPlatform() failed");
 +        return false;
 +    }
++
++#if defined(NEXUS_SERVER_SUPPORT)
++
++    gs_screen_wdt = 1280;
++    gs_screen_hgt = 720; 
++
++    /* Register this display for exclusive mode access */
++    NXPL_RegisterNexusDisplayPlatform(&nxpl_handle, gs_nexus_display);
++
++#else
 +
 +    gs_nexus_display = OpenDisplay((NEXUS_VideoFormat)0);
 +    if (gs_nexus_display == NULL)
@@ -286,6 +322,8 @@
 +
 +    NEXUS_Display_GetGraphicsSettings(gs_nexus_display, &graphics_settings);
 +
++#endif
++
 +    win_info.x = 0; 
 +    win_info.y = 0;
 +    win_info.width = gs_screen_wdt;
@@ -303,6 +341,9 @@
 +
 +void DeInitPlatform(void)
 +{
++
++#if !defined(NEXUS_SERVER_SUPPORT)
++
 +    if (gs_nexus_display != 0)
 +    {
 +        NXPL_DestroyNativeWindow(gs_native_window);
@@ -314,6 +355,9 @@
 +
 +    /* Close the platform */
 +    NEXUS_Platform_Uninit();
++
++#endif
++
 +}
 +
 +#ifdef __cplusplus
