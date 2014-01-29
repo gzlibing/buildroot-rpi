@@ -17,6 +17,13 @@ source "package/xz/Config.in"
 endmenu
 
 menu "Debugging, profiling and benchmark"
+if BR2_PACKAGE_HAS_OPENGL_EGL
+menu "EGL and OpenGL ES examples"
+source "package/glexamples/Config.in"
+if BR2_PACKAGE_HAS_OPENGL_ES
+endif
+endmenu
+endif
 source "package/bonnie/Config.in"
 source "package/cache-calibrator/Config.in"
 source "package/dhrystone/Config.in"
