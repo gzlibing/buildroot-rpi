@@ -1,0 +1,77 @@
+author	Henning Heinold <heinold@inf.fu-berlin.de>	2011-06-04 19:21:41 (GMT)
+committer	Bernhard Reutner-Fischer <rep.dot.nop@gmail.com>	2011-11-07 19:57:02 (GMT)
+commit	19dd090a0f68765db87990ef8eda9bf77bb29581 (patch)
+tree	f210bb330d8b3dda2bcc345a80ce476bd41e1a69 /libc/sysdeps/linux/common/unshare.c
+parent	0c7690f6a5d6e073052ee6487f768289db3a58f7 (diff)
+download	uClibc-19dd090a0f68765db87990ef8eda9bf77bb29581.tar.gz
+uClibc-19dd090a0f68765db87990ef8eda9bf77bb29581.tar.bz2
+libc: flesh out linux scheduler functions
+Most stuff was taken from the eglibc. 
+Signed-off-by: Henning Heinold <heinold@inf.fu-berlin.de> 
+Signed-off-by: Bernhard Reutner-Fischer <rep.dot.nop@gmail.com> 
+
+diff --git a/libc/sysdeps/linux/common/unshare.c b/libc/sysdeps/linux/common/unshare.c
+new file mode 100644
+index 0000000..624ca12
+--- /dev/null
++++ b/libc/sysdeps/linux/common/unshare.c
+@@ -0,0 +1,15 @@
++/* vi: set sw=4 ts=4: */
++/*
++ * unshare() for uClibc
++ *
++ * Copyright (C) 2011 Henning Heinold <heinold@inf.fu-berlin.de>
++ *
++ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
++ */
++
++#include <sys/syscall.h>
++#include <sched.h>
++
++#if defined __NR_unshare
++_syscall1(int, unshare, int, flags)
++#endif
+
+diff -Naur uClibc-0.9.32-bcm-patched/libc/sysdeps/linux/common/Makefile.in uClibc-current/libc/sysdeps/linux/common/Makefile.in
+--- uClibc-0.9.32-bcm-patched/libc/sysdeps/linux/common/Makefile.in	2013-01-29 02:49:50.000000000 -0500
++++ uClibc-current/libc/sysdeps/linux/common/Makefile.in	2013-03-26 10:27:36.853336438 -0400
+@@ -24,7 +24,7 @@
+ 	remap_file_pages.c sched_getaffinity.c sched_setaffinity.c \
+ 	sendfile64.c sendfile.c setfsgid.c setfsuid.c setresuid.c \
+ 	splice.c vmsplice.c tee.c signalfd.c swapoff.c swapon.c \
+-	sync_file_range.c sysctl.c sysinfo.c timerfd.c uselib.c vhangup.c
++	sync_file_range.c sysctl.c sysinfo.c timerfd.c unshare.c uselib.c vhangup.c
+ # NPTL needs these internally: madvise.c
+ CSRC-$(findstring y,$(UCLIBC_LINUX_SPECIFIC)$(UCLIBC_HAS_THREADS_NATIVE)) += madvise.c
+ ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+
+diff -Naur uClibc-0.9.32-bcm-patched/libc/sysdeps/linux/common/bits/sched.h uClibc-current/libc/sysdeps/linux/common/bits/sched.h
+--- uClibc-0.9.32-bcm-patched/libc/sysdeps/linux/common/bits/sched.h	2013-01-29 02:49:50.000000000 -0500
++++ uClibc-current/libc/sysdeps/linux/common/bits/sched.h	2013-03-26 10:24:44.628899642 -0400
+@@ -74,11 +74,9 @@
+ extern int clone (int (*__fn) (void *__arg), void *__child_stack,
+ 		  int __flags, void *__arg, ...) __THROW;
+ 
+-#if 0
+ /* Unshare the specified resources.  */
+ extern int unshare (int __flags) __THROW;
+ #endif
+-#endif
+ 
+ __END_DECLS
+ 
+diff -Naur uClibc-0.9.32-bcm-patched/libc/sysdeps/linux/common/stubs.c uClibc-current/libc/sysdeps/linux/common/stubs.c
+--- uClibc-0.9.32-bcm-patched/libc/sysdeps/linux/common/stubs.c	2013-01-29 02:49:50.000000000 -0500
++++ uClibc-current/libc/sysdeps/linux/common/stubs.c	2013-03-26 10:29:14.599583770 -0400
+@@ -278,6 +278,10 @@
+ make_stub(umount2)
+ #endif
+ 
++#if !defined __NR_unshare && defined __UCLIBC_LINUX_SPECIFIC__
++make_stub(unshare)
++#endif
++
+ #ifndef __NR_utimensat
+ make_stub(futimens)
+ make_stub(utimensat)
+

@@ -20,6 +20,8 @@ UCLIBC_DIR:=$(TOOLCHAIN_DIR)/uClibc
 else ifeq ($(findstring arc,$(UCLIBC_VERSION)),arc)
 UCLIBC_SITE:=$(BR2_ARC_SITE)
 UCLIBC_DIR:=$(TOOLCHAIN_DIR)/uClibc-$(UCLIBC_VERSION)
+else ifeq ($(BR2_UCLIBC_VERSION_CUSTOM),y)
+UCLIBC_DIR:=$(TOOLCHAIN_DIR)/uClibc-$(UCLIBC_VERSION)
 else
 UCLIBC_SITE:=http://www.uclibc.org/downloads
 UCLIBC_DIR:=$(TOOLCHAIN_DIR)/uClibc-$(UCLIBC_VERSION)
@@ -66,8 +68,13 @@ UCLIBC_LOCALES = $(foreach locale,$(GENERATE_LOCALE),\
 endif
 
 $(DL_DIR)/$(UCLIBC_SOURCE):
+ifeq ($(BR2_UCLIBC_VERSION_CUSTOM),y)
+	$(Q)$(call MESSAGE,"Transferring uClibc")
+	cp $(PWD)/$(call qstrip,$(BR2_USE_UCLIBC_CUSTOM)) $(DL_DIR)/$(UCLIBC_SOURCE)
+else
 	$(Q)$(call MESSAGE,"Downloading uClibc")
 	$(call DOWNLOAD,$(UCLIBC_SITE:/=)/$(UCLIBC_SOURCE))
+endif
 
 uclibc-unpacked: $(UCLIBC_DIR)/.unpacked
 $(UCLIBC_DIR)/.unpacked: $(DL_DIR)/$(UCLIBC_SOURCE)
