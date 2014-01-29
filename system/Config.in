@@ -1,5 +1,47 @@
 menu "System configuration"
 
+choice
+       bool "Platform type"
+       default BR2_PLATFORM_RASPBERRYPI
+       help
+         Each system/architecture can be identified as a platform. A 
+         platform identifies a set of software packages  that might be
+         applicable for the architecture/system.
+         e.g. On a platform all software build for it might require
+         a certain platform abstraction layer. Like a KreaTV platform
+         abstraction layer for Motorola STB'es or the NEXUS platform
+         for Broadcom STB'es or no platform abstraction layers for the
+         RaspberryPi.
+
+config BR2_PLATFORM_RASPBERRYPI
+	bool "RaspberryPi"
+	help
+	  This is a Raspberry platform.
+
+config BR2_PLATFORM_KREATV
+	bool "KreaTV"
+	help
+	  This is a Motorola KreaTV platform.
+
+config BR2_PLATFORM_NEXUS
+	bool "Nexus"
+	help
+	  This is a Broadcom Nexus platform.
+
+config BR2_PLATFORM_DAWN
+	bool "Dawn"
+	help
+	  This is a Pace Dawn platform (Nexus+).
+
+endchoice # Platform type
+
+config BR2_PLATFORM_NAME
+	string
+	default "RaspberryPi"   if BR2_PLATFORM_RASPBERRYPI
+	default "KreaTV"        if BR2_PLATFORM_KREATV
+	default "Nexus"         if BR2_PLATFORM_NEXUS
+	default "Dawn"          if BR2_PLATFORM_DAWN
+
 config BR2_TARGET_GENERIC_HOSTNAME
        string "System hostname"
        default "buildroot"
