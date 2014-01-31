@@ -5,8 +5,15 @@ sys:x:3:
 adm:x:4:
 tty:x:5:
 disk:x:6:
+cdrom:x:7:
+tape:x:8:
+floppy:x:9:
 wheel:x:10:root
+dialout:x:20:
+kmem:x:21:
+lp:x:22:
 audio:x:29:
+video:x:30:
 www-data:x:33:
 utmp:x:43:
 staff:x:50:
