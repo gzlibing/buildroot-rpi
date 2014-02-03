@@ -63,6 +63,8 @@
 +
  void QT_FASTCALL comp_func_SourceOver(uint *Q_DECL_RESTRICT dest, const uint *Q_DECL_RESTRICT src, int length, uint const_alpha)
  {
++
++#if defined(QT_ARCH_ARM) || defined(QT_ARCH_ARMV6)
 +/* MUCH HACK */
 +
 +    HACK_PRELOAD_INIT2(dest, src)
@@ -89,9 +91,7 @@
 +            ++i;
 +        }
 +    }
-+
-+/* SUCH WOW */
-+/*
++#else
      PRELOAD_INIT2(dest, src)
      if (const_alpha == 255) {
          for (int i = 0; i < length; ++i) {
@@ -99,7 +99,7 @@
              dest[i] = s + BYTE_MUL(dest[i], qAlpha(~s));
          }
      }
-+*/
++#endif
  }
  
  /*
