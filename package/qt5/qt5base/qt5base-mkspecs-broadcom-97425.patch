@@ -294,7 +294,7 @@
 +    gs_screen_hgt = 720; 
 +
 +    /* Register this display for exclusive mode access */
-+    NXPL_RegisterNexusDisplayPlatform(&nxpl_handle, gs_nexus_display);
++    NXPL_RegisterNexusDisplayPlatform(&nxpl_handle, EGL_DEFAULT_DISPLAY);
 +
 +#else
 +
