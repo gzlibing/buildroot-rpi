@@ -5,16 +5,16 @@
  }
  
 +/* MUCH HACK */
-+
++#if defined(QT_ARCH_ARM) || defined(QT_ARCH_ARMV6)
 +static __attribute__((always_inline)) void hack_preload(const uint *start)
 +{
 +    asm __volatile__("pld [%[addr]]\n"
 +            :
 +            : [addr] "r"(start));
 +}
++#endif
 +#define HACK_UNROLL_4_TIMES(block) block block block block
 +#define HACK_UNROLL_8_TIMES(block) HACK_UNROLL_4_TIMES(block) HACK_UNROLL_4_TIMES(block)
-+
 +#define HACK_UNROLL_LOOP_WITH_PLD(block)                         \
 +    int i = 0;                                              \
 +    int end = length & ~7;                                  \
