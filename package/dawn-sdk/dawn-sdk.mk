@@ -19,9 +19,6 @@ endef
 
 define DAWN_SDK_INSTALL_TARGET_CMDS
 	cp -Rf $(@D)/sdk/lib/* $(TARGET_DIR)/usr/lib/
-	mkdir -p $(TARGET_DIR)/lib/modules/3.3.8-3.0/
-	cp -Rf $(@D)/modules/pace $(TARGET_DIR)/lib/modules/3.3.8-3.0/
-	cp -Rf $(@D)/modules/OSS $(TARGET_DIR)/lib/modules/
 	mkdir -p $(TARGET_DIR)/usr/lib/modules/
 	cp -Rf $(@D)/modules/nexus.ko $(TARGET_DIR)/usr/lib/modules/
 	cp -Rf $(@D)/init/inittab $(TARGET_DIR)/etc
