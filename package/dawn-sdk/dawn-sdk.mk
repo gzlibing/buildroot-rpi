@@ -18,12 +18,12 @@ define DAWN_SDK_INSTALL_STAGING_CMDS
 endef
 
 define DAWN_SDK_INSTALL_TARGET_CMDS
+	mkdir -p $(TARGET_DIR)/usr/lib
 	cp -Rf $(@D)/sdk/lib/* $(TARGET_DIR)/usr/lib/
-	mkdir -p $(TARGET_DIR)/usr/lib/modules/
-	cp -Rf $(@D)/modules/nexus.ko $(TARGET_DIR)/usr/lib/modules/
-	cp -Rf $(@D)/init/inittab $(TARGET_DIR)/etc
-	rm -rf $(TARGET_DIR)/etc/init.d/
-	cp -Rf $(@D)/init/init.d $(TARGET_DIR)/etc
+	mkdir -p $(TARGET_DIR)/lib/modules/
+	cp -Rf $(@D)/modules/nexus.ko $(TARGET_DIR)/lib/modules/
+	$(INSTALL) -D -m 755 package/dawn-sdk/S11nexus $(TARGET_DIR)/etc/init.d/
+	$(INSTALL) -D -m 755 package/dawn-sdk/S70refsw $(TARGET_DIR)/etc/init.d/
 	cp -Rf $(@D)/bin/* $(TARGET_DIR)/usr/bin
 endef
 
