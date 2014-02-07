@@ -1,4 +1,4 @@
-PROGS     = demo_1
+PROGS     = demo_1 demo_2
 
 INSTDIR   = $(prefix)/usr/bin
 INSTMODE  = 0755
@@ -6,11 +6,11 @@ INSTOWNER = root
 INSTGROUP = root
 LDLIBS    = 
 
-OBJS = demo_1.o
+OBJS = demo_1.o demo_2.o
 
 all: $(PROGS)
 $(PROGS): $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ $(LDLIBS) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $< $(LDLIBS) -o $@
 #	$(STRIP) $@
 
 %.o: %.c

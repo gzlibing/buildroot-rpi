@@ -30,10 +30,11 @@ endef
 
 define GLEXAMPLES_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/demo_1 $(TARGET_DIR)/usr/bin
+	$(INSTALL) -D -m 0755 $(@D)/demo_2 $(TARGET_DIR)/usr/bin
 endef
 
 define GLEXAMPLES_UNINSTALL_TARGET_CMDS
-	rm -f $(TARGET_DIR)/usr/bin/demo_1
+	rm -f $(TARGET_DIR)/usr/bin/demo_*
 endef
 
 $(eval $(generic-package))
