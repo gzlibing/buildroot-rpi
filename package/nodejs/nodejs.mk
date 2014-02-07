@@ -1,10 +1,10 @@
-#############################################################
+################################################################################
 #
 # nodejs
 #
-#############################################################
+################################################################################
 
-NODEJS_VERSION = 0.8.26
+NODEJS_VERSION = 0.10.25
 NODEJS_SOURCE = node-v$(NODEJS_VERSION).tar.gz
 NODEJS_SITE = http://nodejs.org/dist/v$(NODEJS_VERSION)
 NODEJS_DEPENDENCIES = host-python host-nodejs \
@@ -43,16 +43,21 @@ ifeq ($(BR2_i386),y)
 NODEJS_CPU=ia32
 else ifeq ($(BR2_x86_64),y)
 NODEJS_CPU=x64
+else ifeq ($(BR2_mipsel),y)
+NODEJS_CPU=mipsel
+ifeq ($(BR2_SOFT_FLOAT),y)
+NODEJS_MIPS_FP=soft
+else
+NODEJS_MIPS_FP=hard
+endif
 else ifeq ($(BR2_arm),y)
 NODEJS_CPU=arm
-ifeq ($(BR2_SOFT_FLOAT),y)
-NODEJS_ARM_FP=soft
-else
 ifeq ($(BR2_PACKAGE_RPI_FIRMWARE),y)
 NODEJS_ARM_FP=hard
+else ifeq ($(BR2_SOFT_FLOAT),y)
+NODEJS_ARM_FP=soft
 else
 NODEJS_ARM_FP=softfp
-endif
 endif
 endif
 
@@ -68,6 +73,7 @@ define NODEJS_CONFIGURE_CMDS
 		--without-dtrace \
 		--without-etw \
 		--dest-cpu=$(NODEJS_CPU) \
+		$(if $(NODEJS_MIPS_FP),--with-mips-float-abi=$(NODEJS_MIPS_FP)) \
 		$(if $(NODEJS_ARM_FP),--with-arm-float-abi=$(NODEJS_ARM_FP)) \
 		--dest-os=linux \
 	)

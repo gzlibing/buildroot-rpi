@@ -1,0 +1,24 @@
+diff -urN nodejs-0.10.25.orig/deps/v8/build/common.gypi nodejs-0.10.25/deps/v8/build/common.gypi
+--- nodejs-0.10.25.orig/deps/v8/build/common.gypi	2014-01-23 06:05:51.000000000 +0100
++++ nodejs-0.10.25/deps/v8/build/common.gypi	2014-02-07 12:35:02.307396072 +0100
+@@ -64,7 +64,7 @@
+     'v8_use_mips_abi_hardfloat%': 'true',
+ 
+     # Default arch variant for MIPS.
+-    'mips_arch_variant%': 'mips32r2',
++    'mips_arch_variant%': 'mips32r1',
+ 
+     'v8_enable_debugger_support%': 1,
+ 
+diff -urN nodejs-0.10.25.orig/deps/v8/SConstruct nodejs-0.10.25/deps/v8/SConstruct
+--- nodejs-0.10.25.orig/deps/v8/SConstruct	2014-01-23 06:05:51.000000000 +0100
++++ nodejs-0.10.25/deps/v8/SConstruct	2014-02-07 12:36:26.171393421 +0100
+@@ -1139,7 +1139,7 @@
+   },
+   'mips_arch_variant': {
+     'values': ['mips32r2', 'mips32r1', 'loongson'],
+-    'default': 'mips32r2',
++    'default': 'mips32r1',
+     'help': 'mips variant'
+   },
+   'compress_startup_data': {
