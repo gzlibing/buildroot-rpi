@@ -1,6 +1,5 @@
-diff -urN nodejs-0.10.25.orig/deps/v8/build/common.gypi nodejs-0.10.25/deps/v8/build/common.gypi
---- nodejs-0.10.25.orig/deps/v8/build/common.gypi	2014-01-23 06:05:51.000000000 +0100
-+++ nodejs-0.10.25/deps/v8/build/common.gypi	2014-02-07 12:35:02.307396072 +0100
+--- a/deps/v8/build/common.gypi
++++ b/deps/v8/build/common.gypi
 @@ -64,7 +64,7 @@
      'v8_use_mips_abi_hardfloat%': 'true',
  
@@ -10,9 +9,8 @@ diff -urN nodejs-0.10.25.orig/deps/v8/build/common.gypi nodejs-0.10.25/deps/v8/b
  
      'v8_enable_debugger_support%': 1,
  
-diff -urN nodejs-0.10.25.orig/deps/v8/SConstruct nodejs-0.10.25/deps/v8/SConstruct
---- nodejs-0.10.25.orig/deps/v8/SConstruct	2014-01-23 06:05:51.000000000 +0100
-+++ nodejs-0.10.25/deps/v8/SConstruct	2014-02-07 12:36:26.171393421 +0100
+--- a/deps/v8/SConstruct
++++ b/deps/v8/SConstruct
 @@ -1139,7 +1139,7 @@
    },
    'mips_arch_variant': {
