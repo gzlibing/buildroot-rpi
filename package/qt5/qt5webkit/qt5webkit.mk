@@ -24,9 +24,9 @@ QT5WEBKIT_DEPENDENCIES += qt5declarative
 endif
 
 ifeq ($(BR2_ENABLE_DEBUG),y)
-	DEBUG_CONFIG="CONFIG+=debug"
+	DEBUG_CONFIG = "CONFIG+=debug"
 else
-	DEBUG_CONFIG="CONFIG-=debug"
+	DEBUG_CONFIG = "CONFIG-=debug"
 endif
 
 ifeq ($(BR2_PACKAGE_MINIBROWSER),y)
@@ -56,7 +56,7 @@ define QT5WEBKIT_CONFIGURE_CMDS
 			CONFIG+=release \
 			CONFIG+=use_gstreamer010 \
 			CONFIG+=system-sqlite \
-			$(DEBUG_CONFIG)\
+			$(DEBUG_CONFIG) \
 	)
 endef
 
