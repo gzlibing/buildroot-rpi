@@ -1,11 +1,10 @@
-config BR2_PACKAGE_QT5SCRIPT
-	bool "qt5script"
+config BR2_PACKAGE_QT5SENSORS
+	bool "qt5sensors"
 	select BR2_PACKAGE_QT5BASE
-	depends on BR2_PACKAGE_QT5_JSCORE_AVAILABLE
 	help
 	  Qt is a cross-platform application and UI framework for
 	  developers using C++.
 
-	  This package corresponds to the qt5script module.
+	  This package corresponds to the qt5sensors module.
 
 	  http://qt-project.org

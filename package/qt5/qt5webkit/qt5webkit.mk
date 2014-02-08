@@ -9,18 +9,18 @@
 QT5WEBKIT_VERSION = $(QT5_VERSION)
 QT5WEBKIT_SITE = $(QT5_SITE)
 QT5WEBKIT_SOURCE = qtwebkit-opensource-src-$(QT5WEBKIT_VERSION).tar.xz
-QT5WEBKIT_DEPENDENCIES = qt5base qt5declarative sqlite host-ruby host-gperf host-bison host-flex
+QT5WEBKIT_DEPENDENCIES = qt5base sqlite host-ruby host-gperf host-bison host-flex
 QT5WEBKIT_INSTALL_STAGING = YES
 
 ifeq ($(BR2_PACKAGE_QT5BASE_LICENSE_APPROVED),y)
-QT5WEBKIT_CONFIGURE_OPTS += -opensource -confirm-license
 QT5WEBKIT_LICENSE = LGPLv2.1 or GPLv3.0
-# Here we would like to get license files from qt5base, but qt5base
-# may not be extracted at the time we get the legal-info for
-# qt5script.
 else
 QT5WEBKIT_LICENSE = Commercial license
 QT5WEBKIT_REDISTRIBUTE = NO
+endif
+
+ifeq ($(BR2_PACKAGE_QT5DECLARATIVE),y)
+QT5WEBKIT_DEPENDENCIES += qt5declarative
 endif
 
 ifeq ($(BR2_ENABLE_DEBUG),y)
@@ -39,6 +39,12 @@ endif
 
 ifeq ($(BR2_PACKAGE_DUMPRENDERTREE), y)
 	QT5WEBKIT_POST_BUILD_HOOKS += QT5WEBKIT_BUILD_MINIBROWSER
+endif
+
+ifeq ($(BR2_PACKAGE_QT5DECLARATIVE),y)
+define QT5WEBKIT_INSTALL_TARGET_QMLS
+	cp -dpfr $(STAGING_DIR)/usr/qml/QtWebKit $(TARGET_DIR)/usr/qml/
+endef
 endif
 
 define QT5WEBKIT_CONFIGURE_CMDS
@@ -93,7 +99,7 @@ define QT5WEBKIT_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)/root/.cache
 	cp -dpf $(STAGING_DIR)/usr/lib/libQt5WebKit*.so.* $(TARGET_DIR)/usr/lib
 	cp -dpf $(@D)/bin/* $(TARGET_DIR)/usr/bin/
-	cp -dpfr $(STAGING_DIR)/usr/qml/QtWebKit $(TARGET_DIR)/usr/qml/
+	$(QT5WEBKIT_INSTALL_TARGET_QMLS)
 endef
 
 $(eval $(generic-package))

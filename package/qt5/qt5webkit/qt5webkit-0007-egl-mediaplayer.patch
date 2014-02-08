@@ -1,4 +1,3 @@
-diff -ur a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.cpp b/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.cpp
 --- a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.cpp	2013-10-22 10:49:39.000000000 +0200
 +++ b/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.cpp	2013-12-02 15:52:38.000000000 +0100
 @@ -51,10 +51,25 @@
@@ -556,7 +555,6 @@ diff -ur a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreame
  #if USE(NATIVE_FULLSCREEN_VIDEO)
      // Faster elements linking.
      gst_element_link_pads_full(queue, "src", actualVideoSink, "sink", GST_PAD_LINK_CHECK_NOTHING);
-diff -ur a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.h b/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.h
 --- a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.h	2013-10-22 10:49:39.000000000 +0200
 +++ b/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.h	2013-12-02 15:52:38.000000000 +0100
 @@ -31,7 +31,7 @@
@@ -639,7 +637,6 @@ diff -ur a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreame
  };
  }
  
-diff -ur a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamer.cpp b/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamer.cpp
 --- a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamer.cpp	2013-10-22 10:49:39.000000000 +0200
 +++ b/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamer.cpp	2013-12-02 15:46:13.000000000 +0100
 @@ -115,6 +115,15 @@
@@ -703,7 +700,6 @@ diff -ur a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreame
  
      g_signal_connect(m_playBin.get(), "notify::source", G_CALLBACK(mediaPlayerPrivateSourceChangedCallback), this);
      g_signal_connect(m_playBin.get(), "video-changed", G_CALLBACK(mediaPlayerPrivateVideoChangedCallback), this);
-diff -ur a/Source/WebCore/WebCore.pri b/Source/WebCore/WebCore.pri
 --- a/Source/WebCore/WebCore.pri	2013-10-22 10:49:35.000000000 +0200
 +++ b/Source/WebCore/WebCore.pri	2013-11-28 15:23:52.000000000 +0100
 @@ -175,7 +175,7 @@
@@ -715,3 +711,14 @@ diff -ur a/Source/WebCore/WebCore.pri b/Source/WebCore/WebCore.pri
      } else {
          DEFINES += GST_API_VERSION=1.0
          DEFINES += GST_API_VERSION_1
+--- a/Source/WebKit/qt/WebCoreSupport/ChromeClientQt.cpp    2013-09-05 15:25:27.199783302 +0300
++++ b/Source/WebKit/qt/WebCoreSupport/ChromeClientQt.cpp    2013-09-05 15:34:18.281776981 +0300
+@@ -656,7 +656,7 @@ void ChromeClientQt::scheduleCompositing
+ ChromeClient::CompositingTriggerFlags ChromeClientQt::allowedCompositingTriggers() const
+ {
+     if (allowsAcceleratedCompositing())
+-        return ThreeDTransformTrigger | CanvasTrigger | AnimationTrigger | AnimatedOpacityTrigger;
++        return ThreeDTransformTrigger | VideoTrigger | CanvasTrigger | AnimationTrigger | AnimatedOpacityTrigger;
+ 
+     return 0;
+ }

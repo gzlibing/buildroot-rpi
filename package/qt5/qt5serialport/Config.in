@@ -1,11 +1,10 @@
-config BR2_PACKAGE_QT5SCRIPT
-	bool "qt5script"
+config BR2_PACKAGE_QT5SERIALPORT
+	bool "qt5serialport"
 	select BR2_PACKAGE_QT5BASE
-	depends on BR2_PACKAGE_QT5_JSCORE_AVAILABLE
 	help
 	  Qt is a cross-platform application and UI framework for
 	  developers using C++.
 
-	  This package corresponds to the qt5script module.
+	  This package corresponds to the qt5serialport module.
 
 	  http://qt-project.org
