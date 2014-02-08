@@ -114,6 +114,10 @@ endif
 ifeq ($(BR2_PACKAGE_DAWN_SDK),y)
 QT5BASE_EGLFS_PLATFORM_HOOKS_SOURCES = \
 	$(@D)/mkspecs/devices/linux-mipsel-broadcom-97425-g++/qeglfshooks_bcm.cpp
+	QT5BASE_CONFIGURE_OPTS += \
+	-device-option QMAKE_LIBS_EGL="" \
+	-device-option QMAKE_LIBS_OPENGL_ES2="" 
+	-device-option QMAKE_LIBS_OPENGL_ES1="" 
 endif
 ifeq ($(BR2_PACKAGE_RPI_USERLAND),y)
 QT5BASE_DEPENDENCIES += gst-omx
