@@ -75,7 +75,7 @@ LIBGTK3_CONF_OPT = --disable-glibtest \
  		--disable-introspection \
 		--disable-debug
 
-LIBGTK3_DEPENDENCIES = host-pkgconf libglib2 host-gobject-introspection host-libgtk3 cairo pango atk gdk-pixbuf
+LIBGTK3_DEPENDENCIES = host-pkgconf libglib2 host-libgtk3 cairo pango atk gdk-pixbuf
 
 ifeq ($(BR2_PACKAGE_WAYLAND),y)
 	LIBGTK3_CONF_OPT += \
@@ -172,6 +172,7 @@ HOST_LIBGTK3_CONF_OPT = \
 		--disable-glibtest \
 		--without-libtiff \
 		--without-libjpeg \
+		--disable-introspection \
 		--with-gdktarget=none \
  		--enable-none-backend \
  		--disable-x11-backend \
