@@ -1,6 +1,0 @@
-config BR2_PACKAGE_GOBJECT_INTROSPECTION
-	bool "gobject-introspection"
-	help
-	  Introspection for GObject libraries.
-	  Installs only m4 file to staging!!!
-
