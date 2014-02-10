@@ -4,27 +4,34 @@
 #
 #############################################################
 
-WEBKIT_VERSION = 1.2.7
+WEBKIT_VERSION = 2.3.5
+WEBKIT_SOURCE = webkitgtk-$(WEBKIT_VERSION).tar.xz
 WEBKIT_SITE = http://www.webkitgtk.org/releases
 WEBKIT_INSTALL_STAGING = YES
-WEBKIT_DEPENDENCIES = host-flex host-bison host-gperf icu libcurl libxml2 \
-	libxslt libgtk2 sqlite enchant libsoup jpeg libgail
+WEBKIT_DEPENDENCIES = host-flex host-bison host-gperf icu libxml2 \
+	libxslt libgtk3 sqlite enchant libsoup jpeg webp
 
-# Give explicit path to icu-config, and silence gazillions of warnings
-# with recent gcc versions.
-WEBKIT_CONF_ENV = ac_cv_path_icu_config=$(STAGING_DIR)/usr/bin/icu-config \
-	CFLAGS="$(TARGET_CFLAGS) -Wno-cast-align" \
-	CXXFLAGS="$(TARGET_CXXFLAGS) -Wno-cast-align"
+WEBKIT_AUTORECONF = YES
 
+# Give explicit path to icu-config.
+WEBKIT_CONF_ENV = \
+	ac_cv_path_icu_config=$(STAGING_DIR)/usr/bin/icu-config \
+	AR_FLAGS="cru" \
+	CXXFLAGS="$(TARGET_CXXFLAGS) -D_GLIBCXX_USE_SCHED_YIELD -D_GLIBCXX_USE_NANOSLEEP"
+
+WEBKIT_CONF_OPT = \
+	--disable-credential-storage \
+	--disable-geolocation \
+	--disable-video \
+	--disable-web-audio
 
 ifeq ($(BR2_PACKAGE_XORG7),y)
-	WEBKIT_CONF_OPT += --with-target=x11
+	WEBKIT_CONF_OPT += --enable-x11-target
 	WEBKIT_DEPENDENCIES += xlib_libXt
-else
-	WEBKIT_CONF_OPT += --with-target=directfb
-	WEBKIT_DEPENDENCIES += directfb
 endif
-
-WEBKIT_CONF_OPT += --disable-video
+ifeq ($(BR2_PACKAGE_WAYLAND),y)
+	WEBKIT_CONF_OPT += --enable-wayland-target
+	WEBKIT_DEPENDENCIES += wayland
+endif
 
 $(eval $(autotools-package))
