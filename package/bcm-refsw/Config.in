@@ -1,5 +1,6 @@
 menuconfig BR2_PACKAGE_BCM_REFSW
 	bool "bcm-refsw"
+	depends on BR2_mipsel
 	select BR2_PACKAGE_HAS_OPENGL_EGL
 	select BR2_PACKAGE_HAS_OPENGL_ES
 	select BR2_PACKAGE_HAS_OPENVG
