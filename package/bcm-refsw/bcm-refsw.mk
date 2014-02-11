@@ -17,7 +17,7 @@ BCM_MAKE_ENV = \
 	NEXUS_PLATFORM=$(call qstrip,${BR2_PACKAGE_BCM_REFSW_PLATFORM}) \
 	LINUX=${LINUX_DIR} \
 	BCHP_VER=$(call qstrip,${BR2_PACKAGE_BCM_REFSW_PLATFORM_REV}) \
-	V3D_SUPPORT=y \
+	NEXUS_HEADERS=y \
 	TOOLCHAIN_ROOT=$(HOST_DIR)/usr/bin/ \
 	SC_PLATFORM=bcm$(call qstrip,${BR2_PACKAGE_BCM_REFSW_PLATFORM})nexus
 
@@ -59,6 +59,8 @@ define BCM_REFSW_INSTALL_STAGING_CMDS
 	mkdir -p $(STAGING_DIR)/usr/lib/pkgconfig
 	$(INSTALL) -m 644 package/bcm-refsw/egl.pc $(STAGING_DIR)/usr/lib/pkgconfig/
 	$(INSTALL) -m 644 package/bcm-refsw/glesv2.pc $(STAGING_DIR)/usr/lib/pkgconfig/
+	$(INSTALL) -m 755 -d $(STAGING_DIR)/usr/include/nexus
+	$(INSTALL) -m 644 $(@D)/nexus/bin/include/*.h $(STAGING_DIR)/usr/include/nexus/
 	$(INSTALL) -m 755 -d $(STAGING_DIR)/usr/include/GLES
 	$(INSTALL) -m 755 -d $(STAGING_DIR)/usr/include/GLES2
 	$(INSTALL) -m 755 -d $(STAGING_DIR)/usr/include/EGL
