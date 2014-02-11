@@ -1,0 +1,18 @@
+menuconfig BR2_PACKAGE_BCM_REFSW
+	bool "bcm-refsw"
+	select BR2_PACKAGE_HAS_OPENGL_EGL
+	select BR2_PACKAGE_HAS_OPENGL_ES
+	select BR2_PACKAGE_HAS_OPENVG
+	help
+	  Broadcom Reference Software
+
+if BR2_PACKAGE_BCM_REFSW
+
+config BR2_PACKAGE_BCM_REFSW_PLATFORM
+	string "Broadcom target platform"
+
+config BR2_PACKAGE_BCM_REFSW_PLATFORM_REV
+	string "Broadcom target platform revision"
+
+endif
+
